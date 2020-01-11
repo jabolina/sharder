@@ -7,6 +7,9 @@
     <groupId>br.com.jabolina</groupId>
     <artifactId>sharder</artifactId>
     <version>0.0.1</version>
+    <modules>
+        <module>core</module>
+    </modules>
     <packaging>pom</packaging>
     <name>Sharder Parent Pom</name>
     <description>In memory data sharding</description>
