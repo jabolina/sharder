@@ -1,2 +1,2 @@
-# sharder
-An in-memory-data-grid to shard data across replicas
+# Sharder
+An in-memory-data-grid to shard data across multiple replicas.
