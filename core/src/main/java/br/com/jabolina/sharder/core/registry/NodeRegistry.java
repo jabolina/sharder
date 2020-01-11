@@ -6,6 +6,7 @@ import br.com.jabolina.sharder.core.concurrent.SingleConcurrent;
 import com.google.common.collect.Maps;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,14 +21,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @date 1/11/20
  */
 public class NodeRegistry implements Registry<Node> {
+  private static final String REGISTRY_THREAD_NAME = "nregistry-%d";
   private final ConcurrentContext context;
   private final RegistryConfiguration registryConfiguration;
   private final AtomicBoolean started;
   private final Map<String, Node> storage;
 
   private NodeRegistry(RegistryConfiguration configuration) {
-    // TODO: not single thread
-    this.context = new SingleConcurrent("nregistry-%d");
+    this.context = new SingleConcurrent(REGISTRY_THREAD_NAME);
     this.storage = Maps.newConcurrentMap();
     this.started = new AtomicBoolean(false);
     this.registryConfiguration = configuration;
@@ -40,6 +41,11 @@ public class NodeRegistry implements Registry<Node> {
    */
   public static Builder builder() {
     return new Builder();
+  }
+
+  @Override
+  public Collection<Node> members() {
+    return storage.values();
   }
 
   @Override

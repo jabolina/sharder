@@ -30,14 +30,16 @@ public class Node implements StatefulComponent<Node>, Member {
 
   @Override
   public CompletableFuture<Node> start() {
+    // TODO: register to registry
     updateStatus(ComponentStatus.STARTING);
-    return null;
+    return CompletableFuture.completedFuture(this);
   }
 
   @Override
   public CompletableFuture<Void> stop() {
+    // TODO: unregister from registry
     updateStatus(ComponentStatus.STOPPING);
-    return null;
+    return CompletableFuture.completedFuture(null);
   }
 
   @Override

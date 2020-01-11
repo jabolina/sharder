@@ -26,16 +26,12 @@ public class Cluster implements Component<Cluster>, Member {
   }
 
   public static ClusterBuilder builder() {
-    return builder(new ClusterConfiguration());
-  }
-
-  public static ClusterBuilder builder(ClusterConfiguration configuration) {
-    return new ClusterBuilder(configuration);
+    return new ClusterBuilder();
   }
 
   @Override
   public CompletableFuture<Cluster> start() {
-    if (starting != null) {
+    if (starting == null) {
       starting = startDependencies()
           .thenComposeAsync(ignore -> finishStart(), context);
     }
@@ -45,7 +41,7 @@ public class Cluster implements Component<Cluster>, Member {
 
   @Override
   public CompletableFuture<Void> stop() {
-    if (stopping != null) {
+    if (stopping == null) {
       stopping = stopDependencies()
           .thenComposeAsync(ignore -> {
             context.close();

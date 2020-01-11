@@ -14,6 +14,10 @@ public class SharderConfiguration implements Configuration {
   private boolean shutdownHook;
   private Thread onShutdown;
 
+  public SharderConfiguration(ClusterConfiguration clusterConfiguration) {
+    this.clusterConfiguration = clusterConfiguration;
+  }
+
   /**
    * Get cluster configuration
    *

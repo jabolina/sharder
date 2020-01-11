@@ -4,8 +4,6 @@ import br.com.jabolina.sharder.core.cluster.ClusterBuilder;
 import br.com.jabolina.sharder.core.cluster.node.Node;
 import br.com.jabolina.sharder.core.registry.Registry;
 
-import java.util.Objects;
-
 /**
  * Sharder instance builder.
  *
@@ -14,12 +12,10 @@ import java.util.Objects;
  */
 public class SharderBuilder extends ClusterBuilder {
   private final SharderConfiguration sharderConfiguration;
-  private final Registry registry;
 
-  public SharderBuilder(SharderConfiguration sharderConfiguration, Registry registry) {
-    super(sharderConfiguration.getClusterConfiguration());
-    this.sharderConfiguration = Objects.requireNonNull(sharderConfiguration, "Sharder configuration cannot be null!");
-    this.registry = Objects.requireNonNull(registry, "Sharder instance registry cannot be null!");
+  public SharderBuilder() {
+    super();
+    this.sharderConfiguration = new SharderConfiguration(clusterConfiguration);
   }
 
   public SharderBuilder withShutdownHook(boolean value) {
@@ -28,25 +24,25 @@ public class SharderBuilder extends ClusterBuilder {
   }
 
   @Override
-  public ClusterBuilder withClusterName(String name) {
+  public SharderBuilder withClusterName(String name) {
     super.withClusterName(name);
     return this;
   }
 
   @Override
-  public ClusterBuilder withNode(Node node) {
+  public SharderBuilder withNode(Node node) {
     super.withNode(node);
     return this;
   }
 
   @Override
-  public ClusterBuilder withNodes(Node... nodes) {
+  public SharderBuilder withNodes(Node... nodes) {
     super.withNodes(nodes);
     return this;
   }
 
   @Override
-  public ClusterBuilder withRegistry(Registry registry) {
+  public SharderBuilder withRegistry(Registry registry) {
     super.withRegistry(registry);
     return this;
   }

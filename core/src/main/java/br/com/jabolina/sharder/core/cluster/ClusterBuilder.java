@@ -12,14 +12,10 @@ import java.util.Objects;
  * @date 1/11/20
  */
 public class ClusterBuilder implements Builder<Cluster> {
-  private ClusterConfiguration clusterConfiguration;
+  protected final ClusterConfiguration clusterConfiguration;
 
-  protected ClusterBuilder() {
-    this(new ClusterConfiguration());
-  }
-
-  protected ClusterBuilder(ClusterConfiguration configuration) {
-    this.clusterConfiguration = Objects.requireNonNull(configuration, "Cluster configuration cannot be null!");
+  public ClusterBuilder() {
+    this.clusterConfiguration = new ClusterConfiguration();
   }
 
   public ClusterBuilder withClusterName(String name) {

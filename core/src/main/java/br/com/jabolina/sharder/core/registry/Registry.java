@@ -1,10 +1,9 @@
 package br.com.jabolina.sharder.core.registry;
 
-import br.com.jabolina.sharder.core.cluster.ClusterConfiguration;
 import br.com.jabolina.sharder.core.cluster.Member;
 import br.com.jabolina.sharder.core.utils.contract.Component;
 
-import java.util.Objects;
+import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -18,6 +17,13 @@ import java.util.concurrent.CompletableFuture;
  * @date 1/11/20
  */
 public interface Registry<T extends Member> extends Component<Registry<T>> {
+
+  /**
+   * Retrieve the registered members
+   *
+   * @return all registered members
+   */
+  Collection<T> members();
 
   /**
    * Register an element into registry
@@ -35,13 +41,7 @@ public interface Registry<T extends Member> extends Component<Registry<T>> {
   CompletableFuture<Void> unregister(T t);
 
   abstract class Builder<U extends Member, R extends Registry<U>> implements br.com.jabolina.sharder.core.utils.contract.Builder<R> {
-    protected RegistryConfiguration registryConfiguration;
-
-    public Builder<U, R> withClusterConfiguration(ClusterConfiguration configuration) {
-      this.registryConfiguration.setClusterConfiguration(
-          Objects.requireNonNull(configuration, "Cluster configuration cannot be null for registry!"));
-      return this;
-    }
+    protected RegistryConfiguration registryConfiguration = new RegistryConfiguration();
   }
 
 }
