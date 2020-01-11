@@ -13,7 +13,7 @@ public final class ConcurrentNamingFactory {
   public static ThreadFactory name(String pattern, Logger logger) {
     return new ThreadFactoryBuilder()
         .setNameFormat(pattern)
-        .setThreadFactory(new ConcurrentFactory())
+        .setThreadFactory(new ConcurrentThreadFactory())
         .setUncaughtExceptionHandler((thread, e) -> logger.error("Uncaught exception on " + thread.getName(), e))
         .build();
   }
