@@ -43,6 +43,6 @@ public class ClusterBuilder implements Builder<Cluster> {
 
   @Override
   public Cluster build() {
-    return null;
+    return new Cluster(clusterConfiguration);
   }
 }

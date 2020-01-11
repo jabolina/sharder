@@ -18,7 +18,6 @@ public class ClusterConfiguration implements Configuration {
   private List<Node> nodes;
   private Registry clusterRegistry;
 
-
   /**
    * Get cluster name
    *
