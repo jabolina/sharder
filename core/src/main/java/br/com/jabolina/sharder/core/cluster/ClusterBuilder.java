@@ -28,7 +28,7 @@ public class ClusterBuilder implements Builder<Cluster> {
   }
 
   public ClusterBuilder withRegistry(Registry registry) {
-    clusterConfiguration.setClusterRegistry(Objects.requireNonNull(registry, "Registry cannot be null!"));
+    clusterConfiguration.setRegistry(Objects.requireNonNull(registry, "Registry cannot be null!"));
     return this;
   }
 

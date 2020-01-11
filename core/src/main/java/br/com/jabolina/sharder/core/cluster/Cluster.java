@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author jab
  * @date 1/11/20
  */
-public class Cluster implements Component<Cluster> {
+public class Cluster implements Component<Cluster>, Member {
   private final ClusterConfiguration clusterConfiguration;
   private final ConcurrentContext context = new SingleConcurrent("cluster-%d");
   private final AtomicBoolean running = new AtomicBoolean(false);
@@ -87,5 +87,10 @@ public class Cluster implements Component<Cluster> {
   private CompletableFuture<Void> stopNodes() {
     return CompletableFuture.allOf(clusterConfiguration.getNodes().stream()
         .map(Node::stop).toArray(CompletableFuture[]::new));
+  }
+
+  @Override
+  public String getName() {
+    return clusterConfiguration.getClusterName();
   }
 }

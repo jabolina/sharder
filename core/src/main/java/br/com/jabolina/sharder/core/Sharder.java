@@ -1,9 +1,11 @@
 package br.com.jabolina.sharder.core;
 
 import br.com.jabolina.sharder.core.cluster.Cluster;
+import br.com.jabolina.sharder.core.cluster.ClusterConfiguration;
 import br.com.jabolina.sharder.core.concurrent.ConcurrentContext;
 import br.com.jabolina.sharder.core.concurrent.ConcurrentNamingFactory;
 import br.com.jabolina.sharder.core.concurrent.SingleConcurrent;
+import br.com.jabolina.sharder.core.registry.NodeRegistry;
 import br.com.jabolina.sharder.core.registry.Registry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +31,7 @@ public class Sharder extends Cluster {
   }
 
   public static SharderBuilder builder(SharderConfiguration sharderConfiguration) {
-    return builder(sharderConfiguration, Registry.instance());
+    return builder(sharderConfiguration, registry(sharderConfiguration.getClusterConfiguration()));
   }
 
   public static SharderBuilder builder(SharderConfiguration sharderConfiguration, Registry registry) {
@@ -71,5 +73,11 @@ public class Sharder extends Cluster {
     scheduledExecutor.shutdownNow();
     context.close();
     return super.stop();
+  }
+
+  private static Registry registry(ClusterConfiguration configuration) {
+    return NodeRegistry.builder()
+        .withClusterConfiguration(configuration)
+        .build();
   }
 }

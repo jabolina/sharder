@@ -16,7 +16,7 @@ public class ClusterConfiguration implements Configuration {
 
   private String clusterName = String.format("%s-%s", CLUSTER_PREFIX, UUID.randomUUID().toString());
   private List<Node> nodes;
-  private Registry clusterRegistry;
+  private Registry registry;
 
   /**
    * Get cluster name
@@ -63,18 +63,18 @@ public class ClusterConfiguration implements Configuration {
    *
    * @return sharder registry
    */
-  public Registry getClusterRegistry() {
-    return clusterRegistry;
+  public Registry getRegistry() {
+    return registry;
   }
 
   /**
    * Set sharder registry
    *
-   * @param clusterRegistry: registry for cluster
+   * @param registry: registry for cluster
    * @return cluster configuration
    */
-  public ClusterConfiguration setClusterRegistry(Registry clusterRegistry) {
-    this.clusterRegistry = clusterRegistry;
+  public ClusterConfiguration setRegistry(Registry registry) {
+    this.registry = registry;
     return this;
   }
 }

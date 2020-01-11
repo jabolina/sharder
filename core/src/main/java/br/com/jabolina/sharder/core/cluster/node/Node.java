@@ -1,5 +1,6 @@
 package br.com.jabolina.sharder.core.cluster.node;
 
+import br.com.jabolina.sharder.core.cluster.Member;
 import br.com.jabolina.sharder.core.utils.contract.StatefulComponent;
 import br.com.jabolina.sharder.core.utils.enumeration.ComponentStatus;
 
@@ -10,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author jab
  * @date 1/11/20
  */
-public class Node implements StatefulComponent<Node> {
+public class Node implements StatefulComponent<Node>, Member {
   private final NodeConfiguration configuration;
   private final AtomicBoolean running = new AtomicBoolean(false);
   private ComponentStatus status = ComponentStatus.NOT_STARTED;
@@ -57,5 +58,10 @@ public class Node implements StatefulComponent<Node> {
   @Override
   public ComponentStatus currentStatus() {
     return status;
+  }
+
+  @Override
+  public String getName() {
+    return configuration.getNodeName();
   }
 }
