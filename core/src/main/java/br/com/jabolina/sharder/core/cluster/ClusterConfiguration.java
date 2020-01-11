@@ -1,8 +1,10 @@
 package br.com.jabolina.sharder.core.cluster;
 
+import br.com.jabolina.sharder.core.cluster.node.Node;
 import br.com.jabolina.sharder.core.registry.Registry;
 import br.com.jabolina.sharder.core.utils.contract.Configuration;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -13,8 +15,8 @@ public class ClusterConfiguration implements Configuration {
   private static final String CLUSTER_PREFIX = "cshard";
 
   private String clusterName = String.format("%s-%s", CLUSTER_PREFIX, UUID.randomUUID().toString());
+  private List<Node> nodes;
   private Registry clusterRegistry;
-  // registry configuration
 
 
   /**
@@ -34,6 +36,26 @@ public class ClusterConfiguration implements Configuration {
    */
   public ClusterConfiguration setClusterName(String clusterName) {
     this.clusterName = clusterName;
+    return this;
+  }
+
+  /**
+   * Get cluster nodes
+   *
+   * @return cluster nodes
+   */
+  public List<Node> getNodes() {
+    return nodes;
+  }
+
+  /**
+   * Set cluster nodes
+   *
+   * @param nodes: cluster nodes
+   * @return cluster
+   */
+  public ClusterConfiguration setNodes(List<Node> nodes) {
+    this.nodes = nodes;
     return this;
   }
 

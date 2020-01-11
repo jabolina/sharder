@@ -1,8 +1,10 @@
 package br.com.jabolina.sharder.core.cluster;
 
+import br.com.jabolina.sharder.core.cluster.node.Node;
 import br.com.jabolina.sharder.core.registry.Registry;
 import br.com.jabolina.sharder.core.utils.contract.Builder;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -27,6 +29,15 @@ public class ClusterBuilder implements Builder<Cluster> {
 
   public ClusterBuilder withRegistry(Registry registry) {
     clusterConfiguration.setClusterRegistry(Objects.requireNonNull(registry, "Registry cannot be null!"));
+    return this;
+  }
+
+  public ClusterBuilder withNode(Node node) {
+    return withNodes(node);
+  }
+
+  public ClusterBuilder withNodes(Node ... nodes) {
+    clusterConfiguration.setNodes(Arrays.asList(nodes));
     return this;
   }
 

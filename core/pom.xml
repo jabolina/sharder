@@ -12,4 +12,11 @@
     <artifactId>core</artifactId>
     <name>Sharder core components</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+    </dependencies>
 </project>

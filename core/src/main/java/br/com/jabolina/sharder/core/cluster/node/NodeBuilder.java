@@ -42,6 +42,6 @@ public class NodeBuilder implements Builder<Node> {
 
   @Override
   public Node build() {
-    return null;
+    return new Node(nodeConfiguration);
   }
 }
