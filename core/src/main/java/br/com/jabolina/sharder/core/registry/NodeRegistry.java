@@ -1,6 +1,8 @@
 package br.com.jabolina.sharder.core.registry;
 
+import br.com.jabolina.sharder.core.cluster.ClusterConfiguration;
 import br.com.jabolina.sharder.core.cluster.node.Node;
+import br.com.jabolina.sharder.core.communication.multicast.MulticastComponent;
 import br.com.jabolina.sharder.core.concurrent.ConcurrentContext;
 import br.com.jabolina.sharder.core.concurrent.ConcurrentPoolFactory;
 import com.google.common.collect.Maps;
@@ -10,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -73,21 +76,22 @@ public class NodeRegistry implements Registry<Node> {
 
   @Override
   public CompletableFuture<Registry<Node>> start() {
-    CompletableFuture<Registry<Node>> future = new CompletableFuture<>();
     if (started.compareAndSet(false, true)) {
       // TODO: start communication services inside configuration
+      return registryConfiguration.getMulticastComponent().start()
+          .thenApply(ignore -> this);
     }
 
-    return future.thenApply(v -> this);
+    return CompletableFuture.completedFuture(this);
   }
 
   @Override
   public CompletableFuture<Void> stop() {
-    CompletableFuture<Void> future = new CompletableFuture<>();
     if (started.compareAndSet(true, false)) {
       // TODO: stop communication services inside configuration
+      return registryConfiguration.getMulticastComponent().stop();
     }
-    return future;
+    return CompletableFuture.completedFuture(null);
   }
 
   @Override
@@ -95,10 +99,24 @@ public class NodeRegistry implements Registry<Node> {
     return started.get();
   }
 
+  public RegistryConfiguration getRegistryConfiguration() {
+    return registryConfiguration;
+  }
+
   /**
    * Build a new registry for nodes
    */
   public static class Builder extends Registry.Builder<Node, NodeRegistry> {
+
+    public Builder withClusterConfiguration(ClusterConfiguration clusterConfiguration) {
+      registryConfiguration.setClusterConfiguration(Objects.requireNonNull(clusterConfiguration, "Cluster configuration cannot be null!"));
+      return this;
+    }
+
+    public Builder withMulticastMessaging(MulticastComponent multicastMessaging) {
+      registryConfiguration.setMulticastComponent(Objects.requireNonNull(multicastMessaging, "Multicast component cannot be null!"));
+      return this;
+    }
 
     @Override
     public NodeRegistry build() {

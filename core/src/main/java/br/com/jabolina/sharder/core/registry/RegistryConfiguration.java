@@ -1,6 +1,7 @@
 package br.com.jabolina.sharder.core.registry;
 
 import br.com.jabolina.sharder.core.cluster.ClusterConfiguration;
+import br.com.jabolina.sharder.core.communication.multicast.MulticastComponent;
 import br.com.jabolina.sharder.core.utils.contract.Configuration;
 
 /**
@@ -11,6 +12,7 @@ import br.com.jabolina.sharder.core.utils.contract.Configuration;
  */
 public class RegistryConfiguration implements Configuration {
   private ClusterConfiguration clusterConfiguration;
+  private MulticastComponent multicastComponent;
 
   public ClusterConfiguration getClusterConfiguration() {
     return clusterConfiguration;
@@ -21,6 +23,12 @@ public class RegistryConfiguration implements Configuration {
     return this;
   }
 
-  // TODO: communication services here, thread pool here
+  public MulticastComponent getMulticastComponent() {
+    return multicastComponent;
+  }
 
+  public RegistryConfiguration setMulticastComponent(MulticastComponent multicastComponent) {
+    this.multicastComponent = multicastComponent;
+    return this;
+  }
 }

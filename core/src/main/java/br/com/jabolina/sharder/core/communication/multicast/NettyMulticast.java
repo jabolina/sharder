@@ -44,6 +44,7 @@ public class NettyMulticast implements MulticastComponent {
     this.group = new NioEventLoopGroup(0, ConcurrentNamingFactory.name(MULTICAST_THREAD_NAME, LOGGER));
     this.networkInterface = networkInterface(localAddr);
     this.localAddress = localAddress();
+    LOGGER.debug("Building netty for [{}] and group [{}]", localAddr, groupAddr);
   }
 
   public static Builder builder() {

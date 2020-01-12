@@ -26,8 +26,7 @@ public class ClusterConfiguration implements Configuration {
   private MulticastConfiguration multicastConfiguration = new MulticastConfiguration();
   private List<Node> nodes = Collections.emptyList();
   private MulticastComponent multicastMessaging;
-  private Registry registry = NodeRegistry.builder()
-      .build();
+  private Registry registry;
 
   /**
    * Get cluster name

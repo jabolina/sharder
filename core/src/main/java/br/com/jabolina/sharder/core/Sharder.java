@@ -28,7 +28,7 @@ public class Sharder extends Cluster {
   }
 
   protected Sharder(SharderConfiguration clusterConfiguration) {
-    super(clusterConfiguration.getClusterConfiguration(), null);
+    super(clusterConfiguration.getClusterConfiguration());
     this.sharderConfiguration = clusterConfiguration;
     this.scheduledExecutor = Executors.newScheduledThreadPool(
         Math.max(Math.min(Runtime.getRuntime().availableProcessors() * 2, 8), 4),

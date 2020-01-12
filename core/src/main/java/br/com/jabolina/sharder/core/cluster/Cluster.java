@@ -6,6 +6,7 @@ import br.com.jabolina.sharder.core.communication.multicast.MulticastComponent;
 import br.com.jabolina.sharder.core.communication.multicast.NettyMulticast;
 import br.com.jabolina.sharder.core.concurrent.ConcurrentContext;
 import br.com.jabolina.sharder.core.concurrent.SingleConcurrent;
+import br.com.jabolina.sharder.core.registry.NodeRegistry;
 import br.com.jabolina.sharder.core.registry.Registry;
 import br.com.jabolina.sharder.core.utils.contract.Component;
 
@@ -22,13 +23,13 @@ public class Cluster implements Component<Cluster>, Member {
   private final ClusterConfiguration clusterConfiguration;
   private final ConcurrentContext context = new SingleConcurrent("cluster-%d");
   private final AtomicBoolean running = new AtomicBoolean(false);
-  private final MulticastComponent multicastMessaging;
+  private final NodeRegistry registry;
   private CompletableFuture<Cluster> starting;
   private CompletableFuture<Void> stopping;
 
-  public Cluster(ClusterConfiguration clusterConfiguration, MulticastComponent multicastMessaging) {
+  public Cluster(ClusterConfiguration clusterConfiguration) {
     this.clusterConfiguration = clusterConfiguration;
-    this.multicastMessaging = multicastMessaging != null ? multicastMessaging : multicastComponent(clusterConfiguration);
+    this.registry = registryComponent(clusterConfiguration);
     clusterConfiguration.getNodes().forEach(node -> node.ehlo(this));
   }
 
@@ -73,8 +74,7 @@ public class Cluster implements Component<Cluster>, Member {
   @SuppressWarnings("unchecked")
   private CompletableFuture<Void> startDependencies() {
     return startNodes()
-        // .thenComposeAsync(ignore -> registry().start(), context)
-        .thenComposeAsync(ignore -> multicastMessaging.start(), context)
+        .thenComposeAsync(ignore -> registry().start(), context)
         .thenApply(ignore -> null);
   }
 
@@ -87,7 +87,6 @@ public class Cluster implements Component<Cluster>, Member {
   private CompletableFuture<Void> stopDependencies() {
     return stopNodes()
         .thenComposeAsync(ignore -> registry().stop())
-        .thenComposeAsync(ignore -> multicastMessaging.stop())
         .thenApply(ignore -> null);
   }
 
@@ -102,7 +101,14 @@ public class Cluster implements Component<Cluster>, Member {
   }
 
   public Registry registry() {
-    return clusterConfiguration.getRegistry();
+    return registry;
+  }
+
+  private NodeRegistry registryComponent(ClusterConfiguration configuration) {
+    return NodeRegistry.builder()
+        .withClusterConfiguration(configuration)
+        .withMulticastMessaging(multicastComponent(configuration))
+        .build();
   }
 
   private MulticastComponent multicastComponent(ClusterConfiguration configuration) {

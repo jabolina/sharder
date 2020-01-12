@@ -40,5 +40,6 @@ public class SharderTest extends BaseSharderTest {
       startAndInsertInstance("default-sharder-" + i);
     }
 
+    Assert.assertEquals(5L, instances.size());
   }
 }
