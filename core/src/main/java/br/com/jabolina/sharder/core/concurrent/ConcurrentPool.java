@@ -22,16 +22,12 @@ public class ConcurrentPool extends BaseConcurrentContext {
   private final Runnable heart;
   private boolean running;
   private final Executor wrap = (Runnable command) -> {
-    try {
-      synchronized (tasks) {
-        tasks.add(command);
-        if (!running) {
-          running = true;
-          ConcurrentPool.this.executorService.execute(command);
-        }
+    synchronized (tasks) {
+      tasks.add(command);
+      if (!running) {
+        running = true;
+        ConcurrentPool.this.executorService.execute(ConcurrentPool.this.heart);
       }
-    } catch (Exception e) {
-      LOGGER.error("Unexpected pool exception", e);
     }
   };
 

@@ -4,14 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -21,19 +14,13 @@ import java.util.concurrent.atomic.AtomicReference;
 public class SingleConcurrent extends BaseConcurrentContext {
   private static final Logger LOGGER = LoggerFactory.getLogger(SingleConcurrent.class);
   private final ScheduledExecutorService executor;
-  private final Executor wrap = (Runnable command) -> {
+  private final Executor wrap = (Runnable command) -> SingleConcurrent.this.executor.execute(() -> {
     try {
-      SingleConcurrent.this.executor.execute(() -> {
-        try {
-          command.run();
-        } catch (Exception ex) {
-          LOGGER.error("Uncaught exception o wrapper", ex);
-        }
-      });
-    } catch (Exception e) {
-      LOGGER.error("Unexpected exception", e);
+      command.run();
+    } catch (Exception ex) {
+      LOGGER.error("Uncaught exception on wrapper", ex);
     }
-  };
+  });
 
   public SingleConcurrent(String name) {
     this(ConcurrentNamingFactory.name(name, LOGGER));

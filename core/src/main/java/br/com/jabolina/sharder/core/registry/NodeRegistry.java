@@ -2,8 +2,10 @@ package br.com.jabolina.sharder.core.registry;
 
 import br.com.jabolina.sharder.core.cluster.node.Node;
 import br.com.jabolina.sharder.core.concurrent.ConcurrentContext;
-import br.com.jabolina.sharder.core.concurrent.SingleConcurrent;
+import br.com.jabolina.sharder.core.concurrent.ConcurrentPoolFactory;
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -22,13 +24,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class NodeRegistry implements Registry<Node> {
   private static final String REGISTRY_THREAD_NAME = "nregistry-%d";
+  private static final Logger LOGGER = LoggerFactory.getLogger(NodeRegistry.class);
   private final ConcurrentContext context;
   private final RegistryConfiguration registryConfiguration;
   private final AtomicBoolean started;
   private final Map<String, Node> storage;
 
   private NodeRegistry(RegistryConfiguration configuration) {
-    this.context = new SingleConcurrent(REGISTRY_THREAD_NAME);
+    int threadPoolSize = Math.max(Math.min(Runtime.getRuntime().availableProcessors() * 2, 32), 4);
+    this.context = ConcurrentPoolFactory.poolContext(REGISTRY_THREAD_NAME, threadPoolSize, LOGGER);
     this.storage = Maps.newConcurrentMap();
     this.started = new AtomicBoolean(false);
     this.registryConfiguration = configuration;
