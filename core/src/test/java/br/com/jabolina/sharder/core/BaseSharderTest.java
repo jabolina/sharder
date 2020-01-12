@@ -11,14 +11,12 @@ import java.util.concurrent.CompletableFuture;
  * @date 1/11/20
  */
 public abstract class BaseSharderTest {
-  private static final int BASE_PORT = 5000;
   private static final int NRO_NODES = 5;
+  private static int basePort = 5000;
 
   public Node buildNode(int idx) {
     return Node.builder()
         .withNodeName("node-" + idx)
-        .withAddress("127.0.0.1")
-        .withPort(BASE_PORT + idx)
         .build();
   }
 
@@ -36,6 +34,8 @@ public abstract class BaseSharderTest {
     return Sharder.builder()
         .withClusterName(name)
         .withNodes(buildNodes(NRO_NODES))
+        .withAddress("127.0.0.1")
+        .withPort(basePort++)
         .build();
   }
 

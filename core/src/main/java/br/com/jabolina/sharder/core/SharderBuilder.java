@@ -42,6 +42,18 @@ public class SharderBuilder extends ClusterBuilder {
   }
 
   @Override
+  public SharderBuilder withAddress(String address) {
+    super.withAddress(address);
+    return this;
+  }
+
+  @Override
+  public SharderBuilder withPort(Integer port) {
+    super.withPort(port);
+    return this;
+  }
+
+  @Override
   public SharderBuilder withRegistry(Registry registry) {
     super.withRegistry(registry);
     return this;

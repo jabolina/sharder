@@ -29,7 +29,7 @@ public class Sharder extends Cluster {
   }
 
   protected Sharder(SharderConfiguration clusterConfiguration, Cluster cluster) {
-    super(clusterConfiguration.getClusterConfiguration());
+    super(clusterConfiguration.getClusterConfiguration(), null);
     this.cluster = cluster;
     this.sharderConfiguration = clusterConfiguration;
     this.scheduledExecutor = Executors.newScheduledThreadPool(

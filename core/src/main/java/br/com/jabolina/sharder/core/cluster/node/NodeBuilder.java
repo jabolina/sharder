@@ -25,16 +25,6 @@ public class NodeBuilder implements Builder<Node> {
     return this;
   }
 
-  public NodeBuilder withAddress(String address) {
-    nodeConfiguration.setAddress(Objects.requireNonNull(address, "Node address cannot be null!"));
-    return this;
-  }
-
-  public NodeBuilder withPort(Integer port) {
-    nodeConfiguration.setPort(Objects.requireNonNull(port, "Node address port cannot be null!"));
-    return this;
-  }
-
   public NodeBuilder withCluster(Cluster cluster) {
     nodeConfiguration.setCluster(Objects.requireNonNull(cluster, "Node cluster cannot be null!"));
     return this;

@@ -29,7 +29,7 @@
         <!-- Core -->
         <guava.version>22.0</guava.version>
         <kryo.version>4.0.2</kryo.version>
-        <netty.version>4.1.27.Final</netty.version>
+        <netty.version>4.1.38.Final</netty.version>
 
         <!-- Maven -->
         <maven.source.plugin.version>2.2.1</maven.source.plugin.version>

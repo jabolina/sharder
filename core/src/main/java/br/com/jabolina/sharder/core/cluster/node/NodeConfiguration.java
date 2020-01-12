@@ -13,8 +13,6 @@ public class NodeConfiguration implements Configuration {
   private static final String NODE_PREFIX = "nshard";
 
   private String nodeName = String.format("%s-%s", NODE_PREFIX, UUID.randomUUID().toString());
-  private String address;
-  private Integer port;
   private Cluster cluster;
 
   /**
@@ -34,46 +32,6 @@ public class NodeConfiguration implements Configuration {
    */
   public NodeConfiguration setNodeName(String nodeName) {
     this.nodeName = nodeName;
-    return this;
-  }
-
-  /**
-   * Get node address
-   *
-   * @return node address
-   */
-  public String getAddress() {
-    return address;
-  }
-
-  /**
-   * Set node address
-   *
-   * @param address: address where the node is
-   * @return node
-   */
-  public NodeConfiguration setAddress(String address) {
-    this.address = address;
-    return this;
-  }
-
-  /**
-   * Get node address port
-   *
-   * @return node address port
-   */
-  public Integer getPort() {
-    return port;
-  }
-
-  /**
-   * Set node address port
-   *
-   * @param port: address port
-   * @return node
-   */
-  public NodeConfiguration setPort(Integer port) {
-    this.port = port;
     return this;
   }
 

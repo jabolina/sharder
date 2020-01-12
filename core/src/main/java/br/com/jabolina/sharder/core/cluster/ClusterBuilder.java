@@ -28,6 +28,16 @@ public class ClusterBuilder implements Builder<Cluster> {
     return this;
   }
 
+  public ClusterBuilder withAddress(String address) {
+    clusterConfiguration.setAddress(Objects.requireNonNull(address, "Node address cannot be null!"));
+    return this;
+  }
+
+  public ClusterBuilder withPort(Integer port) {
+    clusterConfiguration.setPort(Objects.requireNonNull(port, "Node address port cannot be null!"));
+    return this;
+  }
+
   public ClusterBuilder withNode(Node node) {
     return withNodes(node);
   }
@@ -39,7 +49,7 @@ public class ClusterBuilder implements Builder<Cluster> {
 
   @Override
   public Cluster build() {
-    Cluster cluster = new Cluster(clusterConfiguration);
+    Cluster cluster = new Cluster(clusterConfiguration, null);
     clusterConfiguration.getNodes().forEach(node -> node.ehlo(cluster));
     return cluster;
   }
