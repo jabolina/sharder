@@ -22,7 +22,7 @@ public class SharderTest extends BaseSharderTest {
   private List<Sharder> instances = new ArrayList<>();
 
   @After
-  public void teardown() throws InterruptedException, ExecutionException, TimeoutException {
+  public void teardown() {
     instances.forEach(Sharder::stop);
     LOGGER.info("Stopped all instances");
   }

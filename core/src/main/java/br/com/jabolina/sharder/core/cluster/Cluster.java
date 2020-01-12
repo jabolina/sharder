@@ -1,6 +1,7 @@
 package br.com.jabolina.sharder.core.cluster;
 
 import br.com.jabolina.sharder.core.cluster.node.Node;
+import br.com.jabolina.sharder.core.communication.Address;
 import br.com.jabolina.sharder.core.communication.multicast.MulticastComponent;
 import br.com.jabolina.sharder.core.communication.multicast.NettyMulticast;
 import br.com.jabolina.sharder.core.concurrent.ConcurrentContext;
@@ -28,6 +29,7 @@ public class Cluster implements Component<Cluster>, Member {
   public Cluster(ClusterConfiguration clusterConfiguration, MulticastComponent multicastMessaging) {
     this.clusterConfiguration = clusterConfiguration;
     this.multicastMessaging = multicastMessaging != null ? multicastMessaging : multicastComponent(clusterConfiguration);
+    clusterConfiguration.getNodes().forEach(node -> node.ehlo(this));
   }
 
   public static ClusterBuilder builder() {
@@ -71,7 +73,7 @@ public class Cluster implements Component<Cluster>, Member {
   @SuppressWarnings("unchecked")
   private CompletableFuture<Void> startDependencies() {
     return startNodes()
-        .thenComposeAsync(ignore -> registry().start(), context)
+        // .thenComposeAsync(ignore -> registry().start(), context)
         .thenComposeAsync(ignore -> multicastMessaging.start(), context)
         .thenApply(ignore -> null);
   }
@@ -105,8 +107,11 @@ public class Cluster implements Component<Cluster>, Member {
 
   private MulticastComponent multicastComponent(ClusterConfiguration configuration) {
     return NettyMulticast.builder()
-        .withHost(configuration.getAddress())
-        .withPort(configuration.getPort())
+        .withLocalAddr(Address.from(configuration.getAddress(), configuration.getPort()))
+        .withGroupAddr(Address.from(
+            configuration.getMulticastConfiguration().getGroup().getHostAddress(),
+            configuration.getMulticastConfiguration().getPort(),
+            configuration.getMulticastConfiguration().getGroup()))
         .build();
   }
 }

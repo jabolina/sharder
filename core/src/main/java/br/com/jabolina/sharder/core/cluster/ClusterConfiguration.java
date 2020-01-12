@@ -2,6 +2,7 @@ package br.com.jabolina.sharder.core.cluster;
 
 import br.com.jabolina.sharder.core.cluster.node.Node;
 import br.com.jabolina.sharder.core.communication.multicast.MulticastComponent;
+import br.com.jabolina.sharder.core.communication.multicast.MulticastConfiguration;
 import br.com.jabolina.sharder.core.registry.NodeRegistry;
 import br.com.jabolina.sharder.core.registry.Registry;
 import br.com.jabolina.sharder.core.utils.contract.Configuration;
@@ -22,6 +23,7 @@ public class ClusterConfiguration implements Configuration {
   private String clusterName = String.format("%s-%s", CLUSTER_PREFIX, UUID.randomUUID().toString());
   private String address;
   private Integer port;
+  private MulticastConfiguration multicastConfiguration = new MulticastConfiguration();
   private List<Node> nodes = Collections.emptyList();
   private MulticastComponent multicastMessaging;
   private Registry registry = NodeRegistry.builder()
@@ -104,6 +106,15 @@ public class ClusterConfiguration implements Configuration {
    */
   public ClusterConfiguration setNodes(List<Node> nodes) {
     this.nodes = nodes;
+    return this;
+  }
+
+  public MulticastConfiguration getMulticastConfiguration() {
+    return multicastConfiguration;
+  }
+
+  public ClusterConfiguration setMulticastConfiguration(MulticastConfiguration multicastConfiguration) {
+    this.multicastConfiguration = multicastConfiguration;
     return this;
   }
 

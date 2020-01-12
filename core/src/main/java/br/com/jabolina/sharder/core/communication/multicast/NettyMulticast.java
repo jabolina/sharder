@@ -38,25 +38,12 @@ public class NettyMulticast implements MulticastComponent {
   private NioDatagramChannel serverChannel;
   private DatagramChannel clientChannel;
 
-  private NettyMulticast(Address address) {
-    this.groupAddress = new InetSocketAddress(address.getHost(), address.getPort());
+  private NettyMulticast(Address localAddr, Address groupAddr) {
+    this.groupAddress = new InetSocketAddress(groupAddr.getHost(), groupAddr.getPort());
     this.enabled = new AtomicBoolean(false);
     this.group = new NioEventLoopGroup(0, ConcurrentNamingFactory.name(MULTICAST_THREAD_NAME, LOGGER));
-
-    try {
-      this.networkInterface = NetworkInterface.getByInetAddress(address.address());
-    } catch (SocketException e) {
-      // TODO: create exception
-      throw new RuntimeException(e);
-    }
-
-    Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
-    while (addresses.hasMoreElements()) {
-      InetAddress a = addresses.nextElement();
-      if (a instanceof Inet4Address) {
-        this.localAddress = a;
-      }
-    }
+    this.networkInterface = networkInterface(localAddr);
+    this.localAddress = localAddress();
   }
 
   public static Builder builder() {
@@ -116,34 +103,22 @@ public class NettyMulticast implements MulticastComponent {
   }
 
   public static class Builder implements Multicast.Builder {
-    private String host;
-    private Integer port;
+    private Address localAddr;
+    private Address groupAddr;
 
-    public Builder withHost(String host) {
-      this.host = host;
+    public Builder withLocalAddr(Address localAddr) {
+      this.localAddr = localAddr;
       return this;
     }
 
-    public Builder withPort(Integer port) {
-      this.port = port;
+    public Builder withGroupAddr(Address groupAddr) {
+      this.groupAddr = groupAddr;
       return this;
     }
 
     @Override
     public MulticastComponent build() {
-      Address addr;
-
-      if (host == null && port == null) {
-        addr = Address.local();
-      } else if (host == null) {
-        addr = Address.from(port);
-      } else if (port == null) {
-        addr = Address.from(host);
-      } else {
-        addr = Address.from(host, port);
-      }
-
-      return new NettyMulticast(addr);
+      return new NettyMulticast(localAddr, groupAddr);
     }
   }
 
@@ -158,6 +133,12 @@ public class NettyMulticast implements MulticastComponent {
   private CompletableFuture<Void> server() {
     CompletableFuture<Void> future = new CompletableFuture<>();
     bootstrap()
+        .handler(new SimpleChannelInboundHandler<DatagramPacket>() {
+          @Override
+          protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) {
+            // do nothing
+          }
+        })
         .bind(groupAddress.getPort()).addListener((ChannelFutureListener) cfl -> {
           if (cfl.isSuccess()) {
             serverChannel = (NioDatagramChannel) cfl.channel();
@@ -197,6 +178,28 @@ public class NettyMulticast implements MulticastComponent {
     });
 
     return future;
+  }
+
+  private InetAddress localAddress() {
+    Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
+    while (addresses.hasMoreElements()) {
+      InetAddress a = addresses.nextElement();
+      if (a instanceof Inet4Address) {
+        return a;
+      }
+    }
+
+    // TODO: create exception
+    throw new RuntimeException("Could not find local inet address");
+  }
+
+  private NetworkInterface networkInterface(Address localAddr) {
+    try {
+      return NetworkInterface.getByInetAddress(localAddr.address());
+    } catch (SocketException e) {
+      // TODO: create exception
+      throw new RuntimeException(e);
+    }
   }
 
   class MulticastHandler extends SimpleChannelInboundHandler<DatagramPacket> {

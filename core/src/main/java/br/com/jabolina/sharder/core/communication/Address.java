@@ -20,6 +20,12 @@ public final class Address {
     this.port = port;
   }
 
+  private Address(String host, Integer port, InetAddress address) {
+    this.host = host;
+    this.port = port;
+    this.address = address;
+  }
+
   public static Address local() {
     return from(localhost(), DEFAULT_PORT);
   }
@@ -30,6 +36,10 @@ public final class Address {
 
   public static Address from(String host) {
     return from(host, DEFAULT_PORT);
+  }
+
+  public static Address from(String host, Integer port, InetAddress address) {
+    return new Address(host, port, address);
   }
 
   public static Address from(String host, Integer port) {

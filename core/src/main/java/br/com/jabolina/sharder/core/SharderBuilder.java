@@ -61,6 +61,6 @@ public class SharderBuilder extends ClusterBuilder {
 
   @Override
   public Sharder build() {
-    return new Sharder(sharderConfiguration, super.build());
+    return new Sharder(sharderConfiguration);
   }
 }
