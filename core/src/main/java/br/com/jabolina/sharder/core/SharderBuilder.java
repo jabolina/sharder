@@ -13,7 +13,7 @@ import br.com.jabolina.sharder.core.registry.Registry;
 public class SharderBuilder extends ClusterBuilder {
   private final SharderConfiguration sharderConfiguration;
 
-  public SharderBuilder() {
+  SharderBuilder() {
     super();
     this.sharderConfiguration = new SharderConfiguration(clusterConfiguration);
   }
@@ -49,6 +49,6 @@ public class SharderBuilder extends ClusterBuilder {
 
   @Override
   public Sharder build() {
-    return new Sharder(sharderConfiguration);
+    return new Sharder(sharderConfiguration, super.build());
   }
 }

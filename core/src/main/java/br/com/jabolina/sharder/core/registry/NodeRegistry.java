@@ -51,11 +51,10 @@ public class NodeRegistry implements Registry<Node> {
   @Override
   public CompletableFuture<Node> register(Node node) {
     String key = new String(node.hashName(), StandardCharsets.UTF_8);
-    return CompletableFuture.completedFuture(storage.computeIfAbsent(key, k -> {
-      storage.put(k, node);
-      // TODO: introduce to another nodes?
+    return CompletableFuture.runAsync(() -> storage.computeIfAbsent(key, k -> {
+      // TODO: say helo to another nodes inside cluster
       return node;
-    }));
+    }), context).thenApply(v -> node);
   }
 
   @Override

@@ -13,6 +13,10 @@ import java.util.concurrent.ThreadFactory;
 public final class ConcurrentPoolFactory implements ConcurrentFactory {
   private final ScheduledExecutorService executorService;
 
+  public static ConcurrentContext poolContext(String name, int poolSize, Logger logger) {
+    return new ConcurrentPoolFactory(name, poolSize, logger).context();
+  }
+
   public ConcurrentPoolFactory(String name, int poolSize, Logger logger) {
     this(poolSize, ConcurrentNamingFactory.name(name, logger));
   }

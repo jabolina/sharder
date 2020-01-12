@@ -30,4 +30,12 @@ public interface Member {
         .hashBytes(getName().getBytes(StandardCharsets.UTF_8))
         .asBytes();
   }
+
+  /**
+   * Used to insert one member into another
+   *
+   * @param member: member that wants to be introduce
+   */
+  default void ehlo(Member member) {
+  }
 }

@@ -3,6 +3,7 @@ package br.com.jabolina.sharder.core.cluster;
 import br.com.jabolina.sharder.core.cluster.node.Node;
 import br.com.jabolina.sharder.core.concurrent.ConcurrentContext;
 import br.com.jabolina.sharder.core.concurrent.SingleConcurrent;
+import br.com.jabolina.sharder.core.registry.Registry;
 import br.com.jabolina.sharder.core.utils.contract.Component;
 
 import java.util.concurrent.CompletableFuture;
@@ -88,5 +89,9 @@ public class Cluster implements Component<Cluster>, Member {
   @Override
   public String getName() {
     return clusterConfiguration.getClusterName();
+  }
+
+  public Registry registry() {
+    return clusterConfiguration.getRegistry();
   }
 }

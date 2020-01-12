@@ -19,6 +19,7 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class Sharder extends Cluster {
   private static final Logger LOGGER = LoggerFactory.getLogger(Sharder.class);
+  private final Cluster cluster;
   private final SharderConfiguration sharderConfiguration;
   private final ScheduledExecutorService scheduledExecutor;
   private final ConcurrentContext context = new SingleConcurrent("sharder-%d");
@@ -27,8 +28,9 @@ public class Sharder extends Cluster {
     return new SharderBuilder();
   }
 
-  protected Sharder(SharderConfiguration clusterConfiguration) {
+  protected Sharder(SharderConfiguration clusterConfiguration, Cluster cluster) {
     super(clusterConfiguration.getClusterConfiguration());
+    this.cluster = cluster;
     this.sharderConfiguration = clusterConfiguration;
     this.scheduledExecutor = Executors.newScheduledThreadPool(
         Math.max(Math.min(Runtime.getRuntime().availableProcessors() * 2, 8), 4),

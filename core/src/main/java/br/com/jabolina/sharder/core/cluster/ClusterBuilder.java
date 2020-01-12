@@ -39,6 +39,8 @@ public class ClusterBuilder implements Builder<Cluster> {
 
   @Override
   public Cluster build() {
-    return new Cluster(clusterConfiguration);
+    Cluster cluster = new Cluster(clusterConfiguration);
+    clusterConfiguration.getNodes().forEach(node -> node.ehlo(cluster));
+    return cluster;
   }
 }

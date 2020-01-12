@@ -13,9 +13,12 @@ public class BlockingConcurrentPool extends ConcurrentPool {
 
   @Override
   public void execute(Runnable command) {
+    System.out.println("executing");
     if (isBlocked()) {
+      System.out.println("is blocked");
       executorService.execute(command);
     } else {
+      System.out.println("not blocked");
       super.execute(command);
     }
   }
