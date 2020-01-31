@@ -7,11 +7,9 @@
     <groupId>br.com.jabolina</groupId>
     <artifactId>sharder</artifactId>
     <version>0.0.1</version>
-    <modules>
-        <module>core</module>
-    </modules>
-    <packaging>pom</packaging>
-    <name>Sharder Parent Pom</name>
+
+    <packaging>jar</packaging>
+    <name>Sharder</name>
     <description>In memory data sharding</description>
     <inceptionYear>2020</inceptionYear>
 
@@ -70,6 +68,29 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-epoll</artifactId>
+            <classifier>linux-x86_64</classifier>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+            <version>${netty.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
