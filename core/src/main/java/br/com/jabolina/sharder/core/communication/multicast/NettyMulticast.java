@@ -161,7 +161,8 @@ public class NettyMulticast implements MulticastComponent {
           protected void initChannel(NioDatagramChannel nioDatagramChannel) {
             nioDatagramChannel.pipeline().addLast(new MulticastHandler());
           }
-        }).bind().addListener((ChannelFutureListener) cfl -> {
+        }).bind()
+        .addListener((ChannelFutureListener) cfl -> {
           if (cfl.isSuccess()) {
             clientChannel = (DatagramChannel) cfl.channel();
             clientChannel.joinGroup(groupAddress, networkInterface).addListener(gf -> {
@@ -176,7 +177,7 @@ public class NettyMulticast implements MulticastComponent {
           } else {
             future.completeExceptionally(cfl.cause());
           }
-    });
+        });
 
     return future;
   }
