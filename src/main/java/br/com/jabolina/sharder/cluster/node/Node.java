@@ -1,8 +1,10 @@
 package br.com.jabolina.sharder.cluster.node;
 
-import br.com.jabolina.sharder.cluster.Member;
 import br.com.jabolina.sharder.cluster.Cluster;
+import br.com.jabolina.sharder.cluster.Member;
+import br.com.jabolina.sharder.cluster.atomix.AtomixWrapper;
 import br.com.jabolina.sharder.utils.contract.Component;
+import io.atomix.utils.net.Address;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,8 +22,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *   {@code
  *   Node node = Node.builder()
  *       .withNodeName("node-1")
- *       .withAddress("127.0.0.1")
- *       .withPort(5000)
  *       .build()
  *   }
  * </pre>
@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class Node implements Component<Node>, Member {
   private final NodeConfiguration configuration;
+  private AtomixWrapper atomix;
   private final AtomicBoolean running = new AtomicBoolean(false);
 
   Node(NodeConfiguration configuration) {
@@ -50,8 +51,17 @@ public class Node implements Component<Node>, Member {
   public CompletableFuture<Node> start() {
     CompletableFuture<Node> future = new CompletableFuture<>();
     if (running.compareAndSet(false, true)) {
+      configuration
+          .setAtomixClusterAddress(Address.from(
+              configuration.getCluster().configuration().getAddress(),
+              configuration.getCluster().configuration().getPort() * 10))
+          .setAtomixNodeAddress(Address.from(
+              configuration.getCluster().configuration().getAddress(),
+              configuration.getCluster().configuration().getPort() * 10));
+      this.atomix = new AtomixWrapper(configuration.getCluster().configuration(), configuration);
       configuration.getCluster().registry()
-          .register(this)
+              .register(this)
+          .thenComposeAsync(ignore -> atomix.start())
           .thenRun(() -> future.complete(this));
     }
     return future.thenApply(v -> this);
@@ -61,7 +71,12 @@ public class Node implements Component<Node>, Member {
   @SuppressWarnings("unchecked")
   public CompletableFuture<Void> stop() {
     return configuration.getCluster().registry()
-        .unregister(this);
+        .unregister(this)
+        .thenComposeAsync(ignore -> atomix.stop())
+        .thenComposeAsync(ignore -> {
+          running.set(false);
+          return null;
+        });
   }
 
   @Override

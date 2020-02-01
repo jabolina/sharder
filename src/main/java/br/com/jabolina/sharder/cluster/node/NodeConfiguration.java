@@ -2,6 +2,7 @@ package br.com.jabolina.sharder.cluster.node;
 
 import br.com.jabolina.sharder.cluster.Cluster;
 import br.com.jabolina.sharder.utils.contract.Configuration;
+import io.atomix.utils.net.Address;
 
 import java.util.UUID;
 
@@ -14,6 +15,8 @@ public class NodeConfiguration implements Configuration {
 
   private String nodeName = String.format("%s-%s", NODE_PREFIX, UUID.randomUUID().toString());
   private Cluster cluster;
+  private Address atomixClusterAddress;
+  private Address atomixNodeAddress;
 
   /**
    * Get node name
@@ -52,6 +55,24 @@ public class NodeConfiguration implements Configuration {
    */
   public NodeConfiguration setCluster(Cluster cluster) {
     this.cluster = cluster;
+    return this;
+  }
+
+  public Address atomixClusterAddress() {
+    return atomixClusterAddress;
+  }
+
+  public NodeConfiguration setAtomixClusterAddress(Address atomixClusterAddress) {
+    this.atomixClusterAddress = atomixClusterAddress;
+    return this;
+  }
+
+  public Address atomixNodeAddress() {
+    return atomixNodeAddress;
+  }
+
+  public NodeConfiguration setAtomixNodeAddress(Address atomixNodeAddress) {
+    this.atomixNodeAddress = atomixNodeAddress;
     return this;
   }
 }

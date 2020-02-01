@@ -120,4 +120,8 @@ public class Cluster implements Component<Cluster>, Member {
             configuration.getMulticastConfiguration().getGroup()))
         .build();
   }
+
+  public ClusterConfiguration configuration() {
+    return clusterConfiguration;
+  }
 }

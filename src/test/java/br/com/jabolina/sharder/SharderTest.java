@@ -17,7 +17,8 @@ import java.util.concurrent.TimeoutException;
  * @date 1/11/20
  */
 public class SharderTest extends BaseSharderTest {
-  private static final int NRO_INSTANCES = 5;
+  private static final int NRO_INSTANCES = 1;
+  private static final String ATOMIX_NODE_NAME = "%d-node-%s";
   private static final Logger LOGGER = LoggerFactory.getLogger(SharderTest.class);
   private List<Sharder> instances = new ArrayList<>();
 
@@ -40,6 +41,6 @@ public class SharderTest extends BaseSharderTest {
       startAndInsertInstance("default-sharder-" + i);
     }
 
-    Assert.assertEquals(5L, instances.size());
+    Assert.assertEquals(NRO_INSTANCES, instances.size());
   }
 }

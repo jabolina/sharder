@@ -5,6 +5,7 @@ import br.com.jabolina.sharder.communication.multicast.MulticastComponent;
 import br.com.jabolina.sharder.communication.multicast.MulticastConfiguration;
 import br.com.jabolina.sharder.registry.Registry;
 import br.com.jabolina.sharder.utils.contract.Configuration;
+import io.atomix.core.AtomixConfig;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +23,9 @@ public class ClusterConfiguration implements Configuration {
   private String clusterName = String.format("%s-%s", CLUSTER_PREFIX, UUID.randomUUID().toString());
   private String address;
   private Integer port;
+  private int replication = 1;
   private MulticastConfiguration multicastConfiguration = new MulticastConfiguration();
+  private AtomixConfig atomixConfig;
   private List<Node> nodes = Collections.emptyList();
   private MulticastComponent multicastMessaging;
   private Registry registry;
@@ -84,6 +87,26 @@ public class ClusterConfiguration implements Configuration {
    */
   public ClusterConfiguration setPort(Integer port) {
     this.port = port;
+    return this;
+  }
+
+  /**
+   * Get the replication factor for each node
+   *
+   * @return the replication factor
+   */
+  public int replication() {
+    return replication;
+  }
+
+  /**
+   * Defines the replication factor for each node
+   *
+   * @param replication : how many replicas each node will have
+   * @return the cluster configuration
+   */
+  public ClusterConfiguration setReplication(int replication) {
+    this.replication = replication;
     return this;
   }
 
@@ -153,6 +176,26 @@ public class ClusterConfiguration implements Configuration {
    */
   public ClusterConfiguration setRegistry(Registry registry) {
     this.registry = registry;
+    return this;
+  }
+
+  /**
+   * Get atomix configuration
+   *
+   * @return atomix configuration
+   */
+  public AtomixConfig atomixConfig() {
+    return atomixConfig;
+  }
+
+  /**
+   * Set atomix configuration
+   *
+   * @param atomixConfig : atomix configuration to be used within cluster
+   * @return cluster configuration
+   */
+  public ClusterConfiguration setAtomixConfig(AtomixConfig atomixConfig) {
+    this.atomixConfig = atomixConfig;
     return this;
   }
 }

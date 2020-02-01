@@ -3,11 +3,14 @@ package br.com.jabolina.sharder.cluster;
 import br.com.jabolina.sharder.cluster.node.Node;
 import br.com.jabolina.sharder.registry.Registry;
 import br.com.jabolina.sharder.utils.contract.Builder;
+import com.google.common.base.Preconditions;
 
 import java.util.Arrays;
 import java.util.Objects;
 
 /**
+ * Configuration to be used for the created cluster
+ *
  * @author jab
  * @date 1/11/20
  */
@@ -16,6 +19,12 @@ public class ClusterBuilder implements Builder<Cluster> {
 
   public ClusterBuilder() {
     this.clusterConfiguration = new ClusterConfiguration();
+  }
+
+  public ClusterBuilder withReplication(int replication) {
+    Preconditions.checkArgument(replication > 0, "Replication factor must greater than 0!");
+    clusterConfiguration.setReplication(replication);
+    return this;
   }
 
   public ClusterBuilder withClusterName(String name) {
