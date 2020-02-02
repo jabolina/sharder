@@ -18,7 +18,7 @@ public interface AtomixMessage extends SharderMessage {
    * @param <T> : type of the operation that will be executed
    * @param <U> : Builder generic type
    */
-  interface Builder<T extends AtomixOperation, U extends Builder<T, U>> extends SharderMessage.Builder<T, U> {
+  interface Builder<T extends AtomixMessage, U extends Builder<T, U>> extends SharderMessage.Builder<T, U> {
 
   }
 }

@@ -37,7 +37,7 @@ public abstract class BaseSharderTest {
       return basePort++;
     }
 
-    return basePort++ + ( NRO_REPLICATION * NRO_NODES );
+    return basePort++ + (NRO_REPLICATION * NRO_NODES);
   }
 
   protected Sharder buildSharder(String name) {
