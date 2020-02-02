@@ -2,7 +2,7 @@ package br.com.jabolina.sharder.cluster.node;
 
 import br.com.jabolina.sharder.cluster.Cluster;
 import br.com.jabolina.sharder.cluster.Member;
-import br.com.jabolina.sharder.cluster.atomix.AtomixWrapper;
+import br.com.jabolina.sharder.atomix.AtomixWrapper;
 import br.com.jabolina.sharder.utils.contract.Component;
 import io.atomix.utils.net.Address;
 

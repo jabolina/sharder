@@ -1,4 +1,4 @@
-package br.com.jabolina.sharder.cluster.atomix;
+package br.com.jabolina.sharder.atomix;
 
 /**
  * @author jabolina

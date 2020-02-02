@@ -1,4 +1,4 @@
-package br.com.jabolina.sharder.cluster.atomix;
+package br.com.jabolina.sharder.atomix;
 
 import br.com.jabolina.sharder.cluster.ClusterConfiguration;
 import br.com.jabolina.sharder.cluster.node.NodeConfiguration;

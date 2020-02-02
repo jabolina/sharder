@@ -1,4 +1,4 @@
-package br.com.jabolina.sharder.cluster.atomix;
+package br.com.jabolina.sharder.atomix;
 
 import br.com.jabolina.sharder.communication.WrapperCommunication;
 import br.com.jabolina.sharder.message.atomix.AtomixMessage;

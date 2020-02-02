@@ -1,4 +1,4 @@
-package br.com.jabolina.sharder.cluster.atomix;
+package br.com.jabolina.sharder.atomix;
 
 import br.com.jabolina.sharder.cluster.ClusterConfiguration;
 import br.com.jabolina.sharder.cluster.node.NodeConfiguration;
@@ -11,6 +11,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
+ * Wrapper around Atomix, all requests to Atomix will be issued through this wrapper.
+ *
  * @author jabolina
  * @date 2/1/20
  */
