@@ -63,14 +63,14 @@ public interface Wrapper extends Component {
           nodeConfiguration.atomixNodeAddress().port() + i);
       nodes.add(Node.builder()
           .withId(String.format(NODE_NAME_TEMPLATE, nodeConfiguration.getNodeName(), i))
-          .withAddress(clusterConfiguration.getAddress(), clusterConfiguration.getPort() + i)
+          .withAddress(address)
           .build());
     }
 
     return Atomix.builder()
         .withClusterId(clusterConfiguration.getClusterName())
         .withMemberId(clusterConfiguration.getClusterName())
-        .withAddress(clusterConfiguration.getAddress(), clusterConfiguration.getPort())
+        .withAddress(nodeConfiguration.atomixClusterAddress())
         .withProperties(properties)
         .withMulticastEnabled()
         .withMembershipProvider(new BootstrapDiscoveryProvider(nodes));

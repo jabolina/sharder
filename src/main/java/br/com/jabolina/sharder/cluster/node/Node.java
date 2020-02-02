@@ -51,13 +51,14 @@ public class Node implements Component<Node>, Member {
   public CompletableFuture<Node> start() {
     CompletableFuture<Node> future = new CompletableFuture<>();
     if (running.compareAndSet(false, true)) {
+      int offset = offset() * configuration.getCluster().configuration().replication();
       configuration
           .setAtomixClusterAddress(Address.from(
               configuration.getCluster().configuration().getAddress(),
-              configuration.getCluster().configuration().getPort() * 10))
+              configuration.getCluster().configuration().getPort() + offset))
           .setAtomixNodeAddress(Address.from(
               configuration.getCluster().configuration().getAddress(),
-              configuration.getCluster().configuration().getPort() * 10));
+              configuration.getCluster().configuration().getPort() + offset));
       this.atomix = new AtomixWrapper(configuration.getCluster().configuration(), configuration);
       configuration.getCluster().registry()
               .register(this)
@@ -92,5 +93,17 @@ public class Node implements Component<Node>, Member {
   @Override
   public void ehlo(Member member) {
     configuration.setCluster((Cluster) member);
+  }
+
+  private int offset() {
+    int id = 1;
+    for (Node node: configuration.getCluster().configuration().getNodes()) {
+      if (node.getName().equals(configuration.getNodeName())) {
+        break;
+      }
+      id++;
+    }
+
+    return id;
   }
 }

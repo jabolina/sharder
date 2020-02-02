@@ -24,7 +24,7 @@ public class SharderBuilder extends ClusterBuilder {
   }
 
   @Override
-  public ClusterBuilder withReplication(int replication) {
+  public SharderBuilder withReplication(int replication) {
     super.withReplication(replication);
     return this;
   }

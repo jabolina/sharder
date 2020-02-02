@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
  * @date 1/11/20
  */
 public abstract class BaseSharderTest {
-  private static final int NRO_NODES = 1;
+  private static final int NRO_NODES = 5;
   private static int basePort = 5000;
 
   public Node buildNode(int idx) {
@@ -36,6 +36,7 @@ public abstract class BaseSharderTest {
         .withNodes(buildNodes(NRO_NODES))
         .withAddress("127.0.0.1")
         .withPort(basePort++ + NRO_NODES)
+        //.withReplication(NRO_NODES)
         .build();
   }
 
