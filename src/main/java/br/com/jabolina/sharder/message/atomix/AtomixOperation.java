@@ -1,10 +1,10 @@
 package br.com.jabolina.sharder.message.atomix;
 
+import br.com.jabolina.sharder.message.Operation;
+
 /**
- * Base type for all Sharder commands that will be executed inside Atomix.
- *
  * @author jabolina
- * @date 2/1/20
+ * @date 2/2/20
  */
-public interface AtomixOperation {
+public interface AtomixOperation extends Operation {
 }

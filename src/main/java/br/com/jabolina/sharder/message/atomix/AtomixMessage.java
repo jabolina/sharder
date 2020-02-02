@@ -16,9 +16,9 @@ public interface AtomixMessage extends SharderMessage {
    * Basic builder interface for creating Sharder messages
    *
    * @param <T> : type of the operation that will be executed
-   * @param <B> : Builder generic type
+   * @param <U> : Builder generic type
    */
-  interface Builder<T extends AtomixOperation, B extends Builder<T, B>> extends br.com.jabolina.sharder.utils.contract.Builder<T> {
+  interface Builder<T extends AtomixOperation, U extends Builder<T, U>> extends SharderMessage.Builder<T, U> {
 
   }
 }
