@@ -16,14 +16,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class AtomixWrapper implements Wrapper {
   private final Logger log;
+  private final int id;
   private final Atomix atomix;
   private final AtomicBoolean running = new AtomicBoolean(false);
 
-  public AtomixWrapper(ClusterConfiguration clusterConfiguration, NodeConfiguration nodeConfiguration) {
+  public AtomixWrapper(int id, ClusterConfiguration clusterConfiguration, NodeConfiguration nodeConfiguration) {
+    this.id = id;
     this.atomix = atomix(clusterConfiguration, nodeConfiguration);
     this.log = ContextualLoggerFactory.getLogger(getClass(), LoggerContext.builder(getClass())
         .addValue(clusterConfiguration.getClusterName())
         .build());
+  }
+
+  @Override
+  public int id() {
+    return id;
   }
 
   @Override

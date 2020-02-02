@@ -59,7 +59,7 @@ public class Node implements Component<Node>, Member {
           .setAtomixNodeAddress(Address.from(
               configuration.getCluster().configuration().getAddress(),
               configuration.getCluster().configuration().getPort() + offset));
-      this.atomix = new AtomixWrapper(configuration.getCluster().configuration(), configuration);
+      this.atomix = new AtomixWrapper(offset, configuration.getCluster().configuration(), configuration);
       configuration.getCluster().registry()
               .register(this)
           .thenComposeAsync(ignore -> atomix.start())

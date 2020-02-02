@@ -22,12 +22,19 @@ import java.util.function.Function;
 public interface Wrapper extends Component {
   String NODE_NAME_TEMPLATE = "%s-atomix-%d";
 
+  /**
+   * Return id to identify the node inside the cluster
+   *
+   * @return node id inside the cluster
+   */
+  int id();
+
   default Atomix atomix(
       ClusterConfiguration clusterConfiguration,
       NodeConfiguration nodeConfiguration) {
     Address address = Address.from(
         clusterConfiguration.getMulticastConfiguration().getGroup().getHostAddress(),
-        clusterConfiguration.getMulticastConfiguration().getPort() + 1);
+        clusterConfiguration.getMulticastConfiguration().getPort() + id());
     return atomix(clusterConfiguration, nodeConfiguration, builder ->
         builder
             .withProfiles(Profile.consensus(clusterConfiguration.getClusterName()))

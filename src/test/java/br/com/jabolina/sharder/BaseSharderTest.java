@@ -12,7 +12,9 @@ import java.util.concurrent.CompletableFuture;
  */
 public abstract class BaseSharderTest {
   private static final int NRO_NODES = 5;
+  private static final int NRO_REPLICATION = 3;
   private static int basePort = 5000;
+  protected List<Sharder> instances = new ArrayList<>();
 
   public Node buildNode(int idx) {
     return Node.builder()
@@ -30,13 +32,21 @@ public abstract class BaseSharderTest {
     return nodes.toArray(new Node[size]);
   }
 
-  public Sharder buildSharder(String name) {
+  private int port() {
+    if (instances.isEmpty()) {
+      return basePort++;
+    }
+
+    return basePort++ + ( NRO_REPLICATION * NRO_NODES );
+  }
+
+  protected Sharder buildSharder(String name) {
     return Sharder.builder()
         .withClusterName(name)
         .withNodes(buildNodes(NRO_NODES))
         .withAddress("127.0.0.1")
-        .withPort(basePort++ + NRO_NODES)
-        //.withReplication(NRO_NODES)
+        .withPort(port())
+        .withReplication(NRO_REPLICATION)
         .build();
   }
 
