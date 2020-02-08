@@ -104,22 +104,12 @@ public class NettyMulticast implements MulticastComponent {
     return enabled.get();
   }
 
-  public static class Builder implements Multicast.Builder {
-    private Address localAddr;
-    private Address groupAddr;
-
-    public Builder withLocalAddr(Address localAddr) {
-      this.localAddr = localAddr;
-      return this;
-    }
-
-    public Builder withGroupAddr(Address groupAddr) {
-      this.groupAddr = groupAddr;
-      return this;
-    }
-
+  /**
+   * Builder for the multicast netty implementation
+   */
+  public static class Builder extends Multicast.Builder<NettyMulticast, Builder> {
     @Override
-    public MulticastComponent build() {
+    public NettyMulticast build() {
       return new NettyMulticast(localAddr, groupAddr);
     }
   }

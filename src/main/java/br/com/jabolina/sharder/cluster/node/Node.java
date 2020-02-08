@@ -1,8 +1,8 @@
 package br.com.jabolina.sharder.cluster.node;
 
+import br.com.jabolina.sharder.atomix.AtomixWrapper;
 import br.com.jabolina.sharder.cluster.Cluster;
 import br.com.jabolina.sharder.cluster.Member;
-import br.com.jabolina.sharder.atomix.AtomixWrapper;
 import br.com.jabolina.sharder.utils.contract.Component;
 import io.atomix.utils.net.Address;
 
@@ -93,6 +93,10 @@ public class Node implements Component<Node>, Member {
   @Override
   public void ehlo(Member member) {
     configuration.setCluster((Cluster) member);
+  }
+
+  public NodeConfiguration configuration() {
+    return configuration;
   }
 
   private int offset() {

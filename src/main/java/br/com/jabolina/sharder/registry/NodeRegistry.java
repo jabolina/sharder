@@ -67,17 +67,15 @@ public class NodeRegistry implements MemberRegistry<Node> {
   @Override
   public CompletableFuture<Void> unregister(Node node) {
     String key = new String(node.hashName(), StandardCharsets.UTF_8);
-    return CompletableFuture.runAsync(() -> storage.computeIfPresent(key, (k, v) -> {
-      storage.remove(k);
+    return CompletableFuture.runAsync(() -> storage.compute(key, (k, v) -> {
       // TODO: good bye to another nodes?
-      return v;
+      return null;
     }), context);
   }
 
   @Override
   public CompletableFuture<Registry<Node>> start() {
     if (started.compareAndSet(false, true)) {
-      // TODO: start communication services inside configuration
       return registryConfiguration.getMulticastComponent().start()
           .thenApply(ignore -> this);
     }
@@ -88,7 +86,6 @@ public class NodeRegistry implements MemberRegistry<Node> {
   @Override
   public CompletableFuture<Void> stop() {
     if (started.compareAndSet(true, false)) {
-      // TODO: stop communication services inside configuration
       return registryConfiguration.getMulticastComponent().stop();
     }
     return CompletableFuture.completedFuture(null);
@@ -106,7 +103,7 @@ public class NodeRegistry implements MemberRegistry<Node> {
   /**
    * Build a new registry for nodes
    */
-  public static class Builder extends Registry.Builder<Node, NodeRegistry> {
+  public static class Builder extends MemberRegistry.Builder<NodeRegistry, Builder> {
 
     public Builder withClusterConfiguration(ClusterConfiguration clusterConfiguration) {
       registryConfiguration.setClusterConfiguration(Objects.requireNonNull(clusterConfiguration, "Cluster configuration cannot be null!"));

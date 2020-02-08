@@ -1,7 +1,9 @@
 package br.com.jabolina.sharder.communication.multicast;
 
+import br.com.jabolina.sharder.communication.Address;
 import br.com.jabolina.sharder.communication.Communication;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -36,6 +38,25 @@ public interface Multicast extends Communication {
    */
   void unsubscribe(String subject, Consumer<byte[]> listener);
 
-  interface Builder extends br.com.jabolina.sharder.utils.contract.Builder<MulticastComponent> {
+  /**
+   * Builder for the multicast protocol
+   *
+   * @param <T> : type of the concrete multicast implementation
+   * @param <U> : type of the multicast builder
+   */
+  @SuppressWarnings("unchecked")
+  abstract class Builder<T extends Multicast, U extends Builder<T, U>> implements br.com.jabolina.sharder.utils.contract.Builder<T> {
+    protected Address localAddr;
+    protected Address groupAddr;
+
+    public U withLocalAddr(Address localAddr) {
+      this.localAddr = Objects.requireNonNull(localAddr, "Multicast local address cannot be null!");
+      return (U) this;
+    }
+
+    public U withGroupAddr(Address groupAddr) {
+      this.groupAddr = Objects.requireNonNull(groupAddr, "Multicast group address cannot be null!");
+      return (U) this;
+    }
   }
 }
