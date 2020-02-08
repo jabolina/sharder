@@ -1,8 +1,14 @@
 package br.com.jabolina.sharder.communication.multicast;
 
 import br.com.jabolina.sharder.communication.Address;
+import br.com.jabolina.sharder.communication.CommunicationMessage;
 import br.com.jabolina.sharder.concurrent.ConcurrentNamingFactory;
 import br.com.jabolina.sharder.exception.SharderRuntimeException;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import io.atomix.utils.serializer.Namespace;
+import io.atomix.utils.serializer.Namespaces;
+import io.atomix.utils.serializer.Serializer;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
@@ -16,6 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.*;
 import java.util.Enumeration;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -38,6 +46,12 @@ public class NettyMulticast implements MulticastComponent {
   private InetAddress localAddress;
   private NioDatagramChannel serverChannel;
   private DatagramChannel clientChannel;
+  private final Map<String, Set<Consumer<byte[]>>> listeners = Maps.newConcurrentMap();
+  private static final Serializer SERIALIZER = Serializer.using(Namespace.builder()
+      .register(Namespaces.BASIC)
+      .nextId(Namespaces.BEGIN_USER_CUSTOM_ID)
+      .register(CommunicationMessage.class)
+      .build());
 
   private NettyMulticast(Address localAddr, Address groupAddr) {
     this.groupAddress = new InetSocketAddress(groupAddr.getHost(), groupAddr.getPort());
@@ -55,21 +69,28 @@ public class NettyMulticast implements MulticastComponent {
   @Override
   public void multicast(String subject, byte[] message) {
     if (enabled.get()) {
-      // TODO: create message object, serialize
-      ByteBuf buf = serverChannel.alloc().buffer(4 + message.length);
-      buf.writeInt(message.length).writeBytes(message);
+      CommunicationMessage payload = new CommunicationMessage(subject, message);
+      byte[] packet = SERIALIZER.encode(payload);
+      ByteBuf buf = serverChannel.alloc().buffer(4 + packet.length);
+      buf.writeInt(packet.length).writeBytes(packet);
       serverChannel.writeAndFlush(new DatagramPacket(buf, groupAddress));
     }
   }
 
   @Override
   public void subscribe(String subject, Consumer<byte[]> listener) {
-
+    listeners.computeIfAbsent(subject, s -> Sets.newCopyOnWriteArraySet()).add(listener);
   }
 
   @Override
   public void unsubscribe(String subject, Consumer<byte[]> listener) {
-
+    Set<Consumer<byte[]>> consumers = this.listeners.get(subject);
+    if (consumers != null) {
+      consumers.remove(listener);
+      if (consumers.isEmpty()) {
+        listeners.remove(subject);
+      }
+    }
   }
 
   @Override
@@ -196,9 +217,17 @@ public class NettyMulticast implements MulticastComponent {
   class MulticastHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
-      // TODO: deserialize, notify listeners
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket packet) {
       LOGGER.info("received data from mcast");
+      byte[] payload = new byte[packet.content().readInt()];
+      packet.content().readBytes(payload);
+      CommunicationMessage message = SERIALIZER.decode(payload);
+      Set<Consumer<byte[]>> subscribers = listeners.get(message.subject());
+      if (subscribers != null) {
+        for (Consumer<byte[]> listener : subscribers) {
+          listener.accept(message.payload());
+        }
+      }
     }
   }
 }

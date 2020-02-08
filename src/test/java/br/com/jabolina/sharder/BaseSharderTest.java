@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 public abstract class BaseSharderTest {
   private static final int NRO_NODES = 5;
   private static final int NRO_REPLICATION = 3;
-  private static int basePort = 5000;
+  protected static int basePort = 5000;
   protected List<Sharder> instances = new ArrayList<>();
 
   public Node buildNode(int idx) {

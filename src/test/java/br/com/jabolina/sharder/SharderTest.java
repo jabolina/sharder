@@ -1,11 +1,16 @@
 package br.com.jabolina.sharder;
 
+import br.com.jabolina.sharder.communication.Address;
+import br.com.jabolina.sharder.communication.multicast.MulticastConfiguration;
+import br.com.jabolina.sharder.communication.multicast.NettyMulticast;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -39,5 +44,35 @@ public class SharderTest extends BaseSharderTest {
     }
 
     Assert.assertEquals(NRO_INSTANCES, instances.size());
+  }
+
+  @Test
+  public void testSendMessage() throws InterruptedException, ExecutionException, TimeoutException {
+    String SUBJECT = "test-message-subject";
+    String TEST_CONTENT = "test-message-content";
+    CountDownLatch latch = new CountDownLatch(1);
+    MulticastConfiguration configuration = new MulticastConfiguration();
+    NettyMulticast multicast = NettyMulticast.builder()
+        .withLocalAddr(Address.from("127.0.0.1", basePort))
+        .withGroupAddr(Address.from(
+            configuration.getGroup().getHostAddress(),
+            configuration.getPort(),
+            configuration.getGroup()))
+        .build();
+
+    multicast.start().get(30, TimeUnit.SECONDS);
+
+    multicast.subscribe(SUBJECT, (byte[] res) -> {
+      String recv = new String(res, StandardCharsets.UTF_8);
+      Assert.assertNotNull(recv);
+      Assert.assertEquals(TEST_CONTENT, recv);
+      latch.countDown();
+    });
+
+
+    multicast.multicast(SUBJECT, TEST_CONTENT.getBytes(StandardCharsets.UTF_8));
+
+    latch.await(30, TimeUnit.SECONDS);
+    multicast.stop().get(30, TimeUnit.SECONDS);
   }
 }
