@@ -1,9 +1,9 @@
 package br.com.jabolina.sharder.registry;
 
-import br.com.jabolina.sharder.communication.multicast.MulticastComponent;
-import br.com.jabolina.sharder.concurrent.ConcurrentContext;
 import br.com.jabolina.sharder.cluster.ClusterConfiguration;
 import br.com.jabolina.sharder.cluster.node.Node;
+import br.com.jabolina.sharder.communication.multicast.MulticastComponent;
+import br.com.jabolina.sharder.concurrent.ConcurrentContext;
 import br.com.jabolina.sharder.concurrent.ConcurrentPoolFactory;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author jab
  * @date 1/11/20
  */
-public class NodeRegistry implements Registry<Node> {
+public class NodeRegistry implements MemberRegistry<Node> {
   private static final String REGISTRY_THREAD_NAME = "nregistry-%d";
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeRegistry.class);
   private final ConcurrentContext context;

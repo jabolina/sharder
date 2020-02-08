@@ -2,6 +2,7 @@ package br.com.jabolina.sharder.communication.multicast;
 
 import br.com.jabolina.sharder.communication.Address;
 import br.com.jabolina.sharder.concurrent.ConcurrentNamingFactory;
+import br.com.jabolina.sharder.exception.SharderRuntimeException;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
@@ -191,16 +192,14 @@ public class NettyMulticast implements MulticastComponent {
       }
     }
 
-    // TODO: create exception
-    throw new RuntimeException("Could not find local inet address");
+    throw new SharderRuntimeException("Could not find local inet address");
   }
 
   private NetworkInterface networkInterface(Address localAddr) {
     try {
       return NetworkInterface.getByInetAddress(localAddr.address());
     } catch (SocketException e) {
-      // TODO: create exception
-      throw new RuntimeException(e);
+      throw new SharderRuntimeException(e);
     }
   }
 

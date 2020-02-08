@@ -1,6 +1,5 @@
 package br.com.jabolina.sharder.registry;
 
-import br.com.jabolina.sharder.cluster.Member;
 import br.com.jabolina.sharder.utils.contract.Component;
 
 import java.util.Collection;
@@ -16,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
  * @author jab
  * @date 1/11/20
  */
-public interface Registry<T extends Member> extends Component<Registry<T>> {
+public interface Registry<T> extends Component<Registry<T>> {
 
   /**
    * Retrieve the registered members
@@ -40,8 +39,7 @@ public interface Registry<T extends Member> extends Component<Registry<T>> {
    */
   CompletableFuture<Void> unregister(T t);
 
-  abstract class Builder<U extends Member, R extends Registry<U>> implements br.com.jabolina.sharder.utils.contract.Builder<R> {
-    protected RegistryConfiguration registryConfiguration = new RegistryConfiguration();
+  interface Builder<T extends Registry, U extends Builder<T, U>> extends br.com.jabolina.sharder.utils.contract.Builder<T> {
   }
 
 }
