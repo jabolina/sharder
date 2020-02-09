@@ -3,14 +3,20 @@ package br.com.jabolina.sharder.atomix;
 import br.com.jabolina.sharder.cluster.ClusterConfiguration;
 import br.com.jabolina.sharder.cluster.node.NodeConfiguration;
 import br.com.jabolina.sharder.utils.contract.Component;
+import com.google.common.collect.Sets;
 import io.atomix.cluster.Node;
 import io.atomix.cluster.discovery.BootstrapDiscoveryProvider;
 import io.atomix.core.Atomix;
 import io.atomix.core.AtomixBuilder;
-import io.atomix.core.profile.Profile;
+import io.atomix.primitive.partition.ManagedPartitionGroup;
+import io.atomix.protocols.raft.partition.RaftPartitionGroup;
+import io.atomix.protocols.raft.partition.RaftPartitionGroupConfig;
+import io.atomix.protocols.raft.partition.RaftStorageConfig;
+import io.atomix.storage.StorageLevel;
 import io.atomix.utils.net.Address;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.Function;
@@ -32,15 +38,8 @@ public interface Wrapper extends Component {
   default Atomix atomix(
       ClusterConfiguration clusterConfiguration,
       NodeConfiguration nodeConfiguration) {
-    Address address = Address.from(
-        clusterConfiguration.getMulticastConfiguration().getGroup().getHostAddress(),
-        clusterConfiguration.getMulticastConfiguration().getPort() + id());
-    return atomix(clusterConfiguration, nodeConfiguration, builder ->
-        builder
-            .withProfiles(Profile.consensus(clusterConfiguration.getClusterName()))
-            .withMulticastEnabled()
-            .withMulticastAddress(address)
-        .build());
+
+    return atomix(clusterConfiguration, nodeConfiguration, AtomixBuilder::build);
   }
 
   default Atomix atomix(
@@ -58,6 +57,27 @@ public interface Wrapper extends Component {
     return builder.apply(atomix(clusterConfiguration, nodeConfiguration, properties));
   }
 
+  default ManagedPartitionGroup partitionGroup(NodeConfiguration nodeConfiguration, List<String> nodes) {
+    return new RaftPartitionGroup(new RaftPartitionGroupConfig()
+        .setName(nodeConfiguration.getNodeName() + "-partition")
+        .setPartitionSize(nodes.size())
+        .setPartitions(nodes.size())
+        .setMembers(Sets.newConcurrentHashSet(nodes))
+        .setStorageConfig(new RaftStorageConfig().setLevel(StorageLevel.MEMORY)
+            .setDirectory(String.format("partition/%s", nodeConfiguration.getNodeName()))));
+  }
+
+  default ManagedPartitionGroup managementGroup(NodeConfiguration nodeConfiguration, List<String> nodes) {
+    return new RaftPartitionGroup(new RaftPartitionGroupConfig()
+        .setName(nodeConfiguration.getNodeName() + "-management")
+        .setPartitionSize(nodes.size())
+        .setPartitions(1)
+        .setStorageConfig(new RaftStorageConfig()
+            .setLevel(StorageLevel.MEMORY)
+            .setDirectory(String.format("management/%s", nodeConfiguration.getNodeName())))
+        .setMembers(Sets.newConcurrentHashSet(nodes)));
+  }
+
   default AtomixBuilder atomix(
       ClusterConfiguration clusterConfiguration,
       NodeConfiguration nodeConfiguration,
@@ -68,11 +88,16 @@ public interface Wrapper extends Component {
       Address address = Address.from(
           nodeConfiguration.atomixNodeAddress().host(),
           nodeConfiguration.atomixNodeAddress().port() + i);
+      String nodeId = String.format(NODE_NAME_TEMPLATE, nodeConfiguration.getNodeName(), i);
       nodes.add(Node.builder()
-          .withId(String.format(NODE_NAME_TEMPLATE, nodeConfiguration.getNodeName(), i))
+          .withId(nodeId)
           .withAddress(address)
           .build());
     }
+
+    Address address = Address.from(
+        clusterConfiguration.getMulticastConfiguration().getGroup().getHostAddress(),
+        clusterConfiguration.getMulticastConfiguration().getPort() + id());
 
     return Atomix.builder()
         .withClusterId(clusterConfiguration.getClusterName())
@@ -80,6 +105,9 @@ public interface Wrapper extends Component {
         .withAddress(nodeConfiguration.atomixClusterAddress())
         .withProperties(properties)
         .withMulticastEnabled()
+        .withMulticastAddress(address)
+        .withPartitionGroups(partitionGroup(nodeConfiguration, Collections.singletonList(clusterConfiguration.getClusterName())))
+        .withManagementGroup(managementGroup(nodeConfiguration, Collections.singletonList(clusterConfiguration.getClusterName())))
         .withMembershipProvider(new BootstrapDiscoveryProvider(nodes));
   }
 }

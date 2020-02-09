@@ -6,12 +6,18 @@ import br.com.jabolina.sharder.communication.multicast.MulticastComponent;
 import br.com.jabolina.sharder.communication.multicast.NettyMulticast;
 import br.com.jabolina.sharder.concurrent.ConcurrentContext;
 import br.com.jabolina.sharder.concurrent.SingleConcurrent;
+import br.com.jabolina.sharder.primitive.SharderPrimitive;
+import br.com.jabolina.sharder.primitive.SharderPrimitiveClient;
+import br.com.jabolina.sharder.primitive.SharderPrimitiveFactory;
 import br.com.jabolina.sharder.registry.NodeRegistry;
 import br.com.jabolina.sharder.registry.Registry;
 import br.com.jabolina.sharder.utils.contract.Component;
 
+import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Cluster manager
@@ -19,11 +25,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author jab
  * @date 1/11/20
  */
-public class Cluster implements Component<Cluster>, Member {
+public class Cluster implements Component<Cluster>, Member, SharderPrimitiveFactory {
   private final ClusterConfiguration clusterConfiguration;
   private final ConcurrentContext context = new SingleConcurrent("cluster-%d");
   private final AtomicBoolean running = new AtomicBoolean(false);
   private final NodeRegistry registry;
+  private final SharderPrimitive primitiveClient;
   private CompletableFuture<Cluster> starting;
   private CompletableFuture<Void> stopping;
 
@@ -31,6 +38,9 @@ public class Cluster implements Component<Cluster>, Member {
     this.clusterConfiguration = clusterConfiguration;
     this.registry = registryComponent(clusterConfiguration);
     clusterConfiguration.getNodes().forEach(node -> node.ehlo(this));
+    this.primitiveClient = SharderPrimitiveClient.builder()
+        .withNodeRegistry(this.registry)
+        .build();
   }
 
   public static ClusterBuilder builder() {
@@ -123,5 +133,25 @@ public class Cluster implements Component<Cluster>, Member {
 
   public ClusterConfiguration configuration() {
     return clusterConfiguration;
+  }
+
+  @Override
+  public <K, V> void execute(String primitiveName, K key, BiFunction<K, Collection<V>, Collection<V>> func) {
+    primitiveClient.execute(primitiveName, key, func);
+  }
+
+  @Override
+  public <E> void execute(String primitiveName, Function<Collection<E>, Collection<E>> func) {
+    primitiveClient.execute(primitiveName, func);
+  }
+
+  @Override
+  public <K, V> CompletableFuture<Void> primitive(String primitiveName, K key, V value) {
+    return primitiveClient.primitive(primitiveName, key, value);
+  }
+
+  @Override
+  public <E> CompletableFuture<Void> primitive(String primitiveName, E element) {
+    return primitiveClient.primitive(primitiveName, element);
   }
 }

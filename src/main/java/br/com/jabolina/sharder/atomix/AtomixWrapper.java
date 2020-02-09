@@ -37,17 +37,13 @@ public class AtomixWrapper implements Wrapper {
 
   @Override
   public CompletableFuture<AtomixWrapper> start() {
-    CompletableFuture<AtomixWrapper> future = new CompletableFuture<>();
-
     if (running.compareAndSet(false, true)) {
       log.debug("Starting atomix wrapper");
-      atomix.start().thenRun(() -> {
-        log.debug("Atomix started with success!");
-        future.complete(this);
-      });
+      return atomix.start()
+          .thenApply(v -> this);
     }
 
-    return future;
+    return CompletableFuture.completedFuture(this);
   }
 
   @Override

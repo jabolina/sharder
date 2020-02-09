@@ -49,7 +49,6 @@ public class Node implements Component<Node>, Member {
   @Override
   @SuppressWarnings("unchecked")
   public CompletableFuture<Node> start() {
-    CompletableFuture<Node> future = new CompletableFuture<>();
     if (running.compareAndSet(false, true)) {
       int offset = offset() * configuration.getCluster().configuration().replication();
       configuration
@@ -60,12 +59,12 @@ public class Node implements Component<Node>, Member {
               configuration.getCluster().configuration().getAddress(),
               configuration.getCluster().configuration().getPort() + offset));
       this.atomix = new AtomixWrapper(offset, configuration.getCluster().configuration(), configuration);
-      configuration.getCluster().registry()
-              .register(this)
+      return configuration.getCluster().registry()
+          .register(this)
           .thenComposeAsync(ignore -> atomix.start())
-          .thenRunAsync(() -> future.complete(this));
+          .thenApply(v -> this);
     }
-    return future.thenApply(v -> this);
+    return CompletableFuture.completedFuture(this);
   }
 
   @Override

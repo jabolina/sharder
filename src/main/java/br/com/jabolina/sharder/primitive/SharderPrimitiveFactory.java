@@ -1,5 +1,7 @@
 package br.com.jabolina.sharder.primitive;
 
+import br.com.jabolina.sharder.registry.NodeRegistry;
+
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -39,4 +41,15 @@ public interface SharderPrimitiveFactory {
   <K, V> CompletableFuture<Void> primitive(String primitiveName, K key, V value);
 
   <E> CompletableFuture<Void> primitive(String primitiveName, E element);
+
+  interface Builder<T extends SharderPrimitiveFactory, U extends Builder> extends br.com.jabolina.sharder.utils.contract.Builder<T> {
+
+    /**
+     * Define the node registry that will be used.
+     *
+     * @param nodeRegistry: registry for nodes
+     * @return Primitive client builder
+     */
+    U withNodeRegistry(NodeRegistry nodeRegistry);
+  }
 }

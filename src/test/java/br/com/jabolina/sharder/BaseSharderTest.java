@@ -2,6 +2,9 @@ package br.com.jabolina.sharder;
 
 import br.com.jabolina.sharder.cluster.node.Node;
 
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -12,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public abstract class BaseSharderTest {
   protected static final int NRO_NODES = 5;
-  private static final int NRO_REPLICATION = 3;
+  private static final int NRO_REPLICATION = 1;
   protected static int basePort = 5000;
   protected List<Sharder> instances = new ArrayList<>();
 
@@ -40,7 +43,7 @@ public abstract class BaseSharderTest {
     return basePort++ + (NRO_REPLICATION * NRO_NODES);
   }
 
-  protected Sharder buildSharder(String name) {
+  Sharder buildSharder(String name) {
     return Sharder.builder()
         .withClusterName(name)
         .withNodes(buildNodes(NRO_NODES))
@@ -50,20 +53,40 @@ public abstract class BaseSharderTest {
         .build();
   }
 
-  public CompletableFuture<Sharder> startInstance(Sharder sharder) {
+  CompletableFuture<Sharder> startInstance(Sharder sharder) {
     return sharder.start().thenApply(r -> sharder);
+  }
+
+  protected void removeFolders(String prefix) throws IOException {
+    Path directory = Paths.get(prefix);
+
+    if (Files.exists(directory)) {
+      Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+          Files.delete(file);
+          return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+          Files.delete(dir);
+          return FileVisitResult.CONTINUE;
+        }
+      });
+    }
   }
 
   protected CompletableFuture<Void> wrap(Runnable runnable) {
     CompletableFuture<Void> future = new CompletableFuture<>();
-    return CompletableFuture.runAsync(new Wrapper(runnable, future));
+    return CompletableFuture.runAsync(new ThreadWrapper(runnable, future));
   }
 
-  private class Wrapper implements Runnable {
+  private class ThreadWrapper implements Runnable {
     private final Runnable runnable;
     private final CompletableFuture<?> future;
 
-    Wrapper(Runnable runnable, CompletableFuture future) {
+    ThreadWrapper(Runnable runnable, CompletableFuture future) {
       this.runnable = runnable;
       this.future = future;
     }

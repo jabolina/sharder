@@ -8,4 +8,7 @@ import br.com.jabolina.sharder.utils.contract.Component;
  */
 public interface SharderPrimitive extends SharderPrimitiveFactory, Component<SharderPrimitive> {
 
+  interface Builder<T extends SharderPrimitive, U extends Builder<T, U>> extends SharderPrimitiveFactory.Builder<T, U> {
+
+  }
 }

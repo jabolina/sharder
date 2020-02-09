@@ -6,8 +6,12 @@ import br.com.jabolina.sharder.communication.multicast.MulticastComponent;
 import br.com.jabolina.sharder.communication.multicast.NettyMulticast;
 import br.com.jabolina.sharder.primitive.SharderPrimitiveClient;
 import br.com.jabolina.sharder.registry.NodeRegistry;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -19,6 +23,13 @@ import java.util.concurrent.TimeoutException;
  */
 public class PrimitiveClientTest extends BaseSharderTest {
   private static final String TEST_VALUE = "test-primitive-value";
+
+  @After
+  @Before
+  public void clear() throws IOException {
+    removeFolders("management");
+    removeFolders("partition");
+  }
 
   @Test
   public void testMapPrimitiveClient() throws InterruptedException, ExecutionException, TimeoutException {
@@ -58,6 +69,21 @@ public class PrimitiveClientTest extends BaseSharderTest {
     }).get(10, TimeUnit.SECONDS);
 
     nodeRegistry.stop().thenRun(primitiveClient::stop).get(30, TimeUnit.SECONDS);
+  }
+
+  @Test
+  public void testMapUsingSharder() throws InterruptedException, ExecutionException, TimeoutException {
+    Sharder sharder = startInstance(buildSharder("sharder-test-map")).get(30, TimeUnit.SECONDS);
+    Assert.assertNotNull(sharder);
+
+    wrap(() -> {
+      TestPrimitive testPrimitive = new TestPrimitive();
+      testPrimitive.value = TEST_VALUE;
+      sharder.primitive("test-map", "test-key", testPrimitive);
+      try {
+        Thread.sleep(2_500);
+      } catch (InterruptedException e) { }
+    }).get(10, TimeUnit.SECONDS);
   }
 
   private ClusterConfiguration clusterConfiguration() {

@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
@@ -34,6 +35,10 @@ public class SharderPrimitiveClient implements SharderPrimitive {
         .build();
   }
 
+  public static Builder builder() {
+    return new Builder();
+  }
+
   @Override
   public <K, V> void execute(String primitiveName, K key, BiFunction<K, Collection<V>, Collection<V>> func) {
   }
@@ -49,10 +54,10 @@ public class SharderPrimitiveClient implements SharderPrimitive {
         .thenApply(v -> {
           log.debug("Multicast map primitive");
           MapPrimitive<K, V> primitive = new MapPrimitive<>(primitiveName, key, value);
-          multicast.subscribe(primitiveName, bytes -> {
+          nodeRegistry.members().forEach(node -> multicast.subscribe(primitiveName, bytes -> {
             MapPrimitive<K, V> received = primitive.serializer().decode(bytes);
-            log.debug("Received for key [{}] value [{}]", received.key(), received.value());
-          });
+            log.info("Received for key [{}] value [{}]", received.key(), received.value());
+          }));
           multicast.multicast(primitiveName, primitive.serialize());
           return v;
         })
@@ -64,10 +69,10 @@ public class SharderPrimitiveClient implements SharderPrimitive {
     return primitiveRegistry.register(new PrimitiveHolder(primitiveName, element.getClass().getTypeName()))
         .thenApply(v -> {
           CollectionPrimitive<E> primitive = new CollectionPrimitive<>(primitiveName, element);
-          multicast.subscribe(primitiveName, bytes -> {
+          nodeRegistry.members().forEach(node -> multicast.subscribe(primitiveName, bytes -> {
             CollectionPrimitive<E> received = primitive.serializer().decode(bytes);
             log.debug("Received on collection [{}]", received.element());
-          });
+          }));
           multicast.multicast(primitiveName, primitive.serialize());
           return v;
         })
@@ -95,5 +100,20 @@ public class SharderPrimitiveClient implements SharderPrimitive {
   @Override
   public boolean isRunning() {
     return primitiveRegistry.isRunning() && started.get();
+  }
+
+  public static class Builder implements SharderPrimitive.Builder<SharderPrimitiveClient, Builder> {
+    private NodeRegistry registry;
+
+    @Override
+    public Builder withNodeRegistry(NodeRegistry nodeRegistry) {
+      this.registry = Objects.requireNonNull(nodeRegistry, "Node registry cannot be null!");
+      return this;
+    }
+
+    @Override
+    public SharderPrimitiveClient build() {
+      return new SharderPrimitiveClient(registry);
+    }
   }
 }

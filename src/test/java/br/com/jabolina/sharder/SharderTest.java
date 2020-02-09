@@ -5,10 +5,12 @@ import br.com.jabolina.sharder.communication.multicast.MulticastConfiguration;
 import br.com.jabolina.sharder.communication.multicast.NettyMulticast;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -26,7 +28,11 @@ public class SharderTest extends BaseSharderTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(SharderTest.class);
 
   @After
-  public void teardown() {
+  @Before
+  public void clear() throws IOException {
+    removeFolders("management");
+    removeFolders("partition");
+
     instances.forEach(Sharder::stop);
     LOGGER.info("Stopped all instances");
   }
