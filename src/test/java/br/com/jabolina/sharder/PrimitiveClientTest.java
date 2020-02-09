@@ -86,6 +86,21 @@ public class PrimitiveClientTest extends BaseSharderTest {
     }).get(10, TimeUnit.SECONDS);
   }
 
+  @Test
+  public void testCollectionUsingSharder() throws InterruptedException, ExecutionException, TimeoutException {
+    Sharder sharder = startInstance(buildSharder("sharder-test-collection")).get(30, TimeUnit.SECONDS);
+    Assert.assertNotNull(sharder);
+
+    wrap(() -> {
+      TestPrimitive testPrimitive = new TestPrimitive();
+      testPrimitive.value = TEST_VALUE;
+      sharder.primitive("test-collection", testPrimitive);
+      try {
+        Thread.sleep(2_500);
+      } catch (InterruptedException e) { }
+    }).get(10, TimeUnit.SECONDS);
+  }
+
   private ClusterConfiguration clusterConfiguration() {
     return buildSharder("primitive-client-test")
         .configuration();

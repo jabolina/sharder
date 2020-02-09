@@ -56,7 +56,7 @@ public class SharderPrimitiveClient implements SharderPrimitive {
           MapPrimitive<K, V> primitive = new MapPrimitive<>(primitiveName, key, value);
           nodeRegistry.members().forEach(node -> multicast.subscribe(primitiveName, bytes -> {
             MapPrimitive<K, V> received = primitive.serializer().decode(bytes);
-            log.info("Received for key [{}] value [{}]", received.key(), received.value());
+            log.debug("Received for key [{}] value [{}]", received.key(), received.value());
           }));
           multicast.multicast(primitiveName, primitive.serialize());
           return v;

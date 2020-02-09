@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public abstract class BaseSharderTest {
   protected static final int NRO_NODES = 5;
-  private static final int NRO_REPLICATION = 1;
+  private static final int NRO_REPLICATION = 3;
   protected static int basePort = 5000;
   protected List<Sharder> instances = new ArrayList<>();
 
