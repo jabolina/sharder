@@ -63,7 +63,7 @@ public class Node implements Component<Node>, Member {
       configuration.getCluster().registry()
               .register(this)
           .thenComposeAsync(ignore -> atomix.start())
-          .thenRun(() -> future.complete(this));
+          .thenRunAsync(() -> future.complete(this));
     }
     return future.thenApply(v -> this);
   }

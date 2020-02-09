@@ -1,9 +1,10 @@
 package br.com.jabolina.sharder.primitive;
 
 import br.com.jabolina.sharder.communication.multicast.Multicast;
+import br.com.jabolina.sharder.primitive.data.CollectionPrimitive;
+import br.com.jabolina.sharder.primitive.data.MapPrimitive;
 import br.com.jabolina.sharder.registry.NodeRegistry;
 import br.com.jabolina.sharder.registry.PrimitiveRegistry;
-import io.atomix.utils.net.Address;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +36,6 @@ public class SharderPrimitiveClient implements SharderPrimitive {
 
   @Override
   public <K, V> void execute(String primitiveName, K key, BiFunction<K, Collection<V>, Collection<V>> func) {
-    nodeRegistry.members().stream()
-        .map(node -> node.configuration().atomixNodeAddress())
-        .map(Address::toString);
   }
 
   @Override
@@ -49,8 +47,13 @@ public class SharderPrimitiveClient implements SharderPrimitive {
   public <K, V> CompletableFuture<Void> primitive(String primitiveName, K key, V value) {
     return primitiveRegistry.register(new PrimitiveHolder(primitiveName, value.getClass().getTypeName()))
         .thenApply(v -> {
-          multicast.subscribe(primitiveName, bytes -> log.info("{}", bytes));
-          multicast.multicast(primitiveName, new byte[0]);
+          log.debug("Multicast map primitive");
+          MapPrimitive<K, V> primitive = new MapPrimitive<>(primitiveName, key, value);
+          multicast.subscribe(primitiveName, bytes -> {
+            MapPrimitive<K, V> received = primitive.serializer().decode(bytes);
+            log.debug("Received for key [{}] value [{}]", received.key(), received.value());
+          });
+          multicast.multicast(primitiveName, primitive.serialize());
           return v;
         })
         .thenApply(v -> null);
@@ -58,21 +61,39 @@ public class SharderPrimitiveClient implements SharderPrimitive {
 
   @Override
   public <E> CompletableFuture<Void> primitive(String primitiveName, E element) {
-    return null;
+    return primitiveRegistry.register(new PrimitiveHolder(primitiveName, element.getClass().getTypeName()))
+        .thenApply(v -> {
+          CollectionPrimitive<E> primitive = new CollectionPrimitive<>(primitiveName, element);
+          multicast.subscribe(primitiveName, bytes -> {
+            CollectionPrimitive<E> received = primitive.serializer().decode(bytes);
+            log.debug("Received on collection [{}]", received.element());
+          });
+          multicast.multicast(primitiveName, primitive.serialize());
+          return v;
+        })
+        .thenApply(v -> null);
   }
 
   @Override
   public CompletableFuture<SharderPrimitive> start() {
-    return primitiveRegistry.start().thenApply(v -> this);
+    if (started.compareAndSet(false, true)) {
+      return primitiveRegistry.start().thenApply(v -> this);
+    }
+
+    return CompletableFuture.completedFuture(this);
   }
 
   @Override
   public CompletableFuture<Void> stop() {
-    return primitiveRegistry.stop();
+    if (started.compareAndSet(true, false)) {
+      return primitiveRegistry.stop();
+    }
+
+    return CompletableFuture.completedFuture(null);
   }
 
   @Override
   public boolean isRunning() {
-    return primitiveRegistry.isRunning();
+    return primitiveRegistry.isRunning() && started.get();
   }
 }

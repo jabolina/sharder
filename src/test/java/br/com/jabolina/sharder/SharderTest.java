@@ -14,6 +14,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 
 /**
  * @author jab
@@ -48,9 +49,15 @@ public class SharderTest extends BaseSharderTest {
 
   @Test
   public void testSendMessage() throws InterruptedException, ExecutionException, TimeoutException {
-    String SUBJECT = "test-message-subject";
-    String TEST_CONTENT = "test-message-content";
+    final String subject = "test-message-subject";
+    final String testContent = "test-message-content";
     CountDownLatch latch = new CountDownLatch(1);
+    Consumer<byte[]> consumer = (byte[] res) -> {
+      String recv = new String(res, StandardCharsets.UTF_8);
+      Assert.assertNotNull(recv);
+      Assert.assertEquals(testContent, recv);
+      latch.countDown();
+    };
     MulticastConfiguration configuration = new MulticastConfiguration();
     NettyMulticast multicast = NettyMulticast.builder()
         .withLocalAddr(Address.from("127.0.0.1", basePort))
@@ -62,17 +69,11 @@ public class SharderTest extends BaseSharderTest {
 
     multicast.start().get(30, TimeUnit.SECONDS);
 
-    multicast.subscribe(SUBJECT, (byte[] res) -> {
-      String recv = new String(res, StandardCharsets.UTF_8);
-      Assert.assertNotNull(recv);
-      Assert.assertEquals(TEST_CONTENT, recv);
-      latch.countDown();
-    });
-
-
-    multicast.multicast(SUBJECT, TEST_CONTENT.getBytes(StandardCharsets.UTF_8));
-
+    multicast.subscribe(subject, consumer);
+    multicast.multicast(subject, testContent.getBytes(StandardCharsets.UTF_8));
     latch.await(30, TimeUnit.SECONDS);
+
+    multicast.unsubscribe(subject, consumer);
     multicast.stop().get(30, TimeUnit.SECONDS);
   }
 }

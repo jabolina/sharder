@@ -218,7 +218,7 @@ public class NettyMulticast implements MulticastComponent {
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket packet) {
-      LOGGER.info("received data from mcast");
+      LOGGER.debug("received data from mcast");
       byte[] payload = new byte[packet.content().readInt()];
       packet.content().readBytes(payload);
       CommunicationMessage message = SERIALIZER.decode(payload);

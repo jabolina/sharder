@@ -58,19 +58,14 @@ public class NodeRegistry implements MemberRegistry<Node> {
   @Override
   public CompletableFuture<Node> register(Node node) {
     String key = new String(node.hashName(), StandardCharsets.UTF_8);
-    return CompletableFuture.runAsync(() -> storage.computeIfAbsent(key, k -> {
-      // TODO: say helo to another nodes inside cluster
-      return node;
-    }), context).thenApply(v -> node);
+    return CompletableFuture.runAsync(() -> storage.computeIfAbsent(key, k -> node), context)
+        .thenApply(v -> node);
   }
 
   @Override
   public CompletableFuture<Void> unregister(Node node) {
     String key = new String(node.hashName(), StandardCharsets.UTF_8);
-    return CompletableFuture.runAsync(() -> storage.compute(key, (k, v) -> {
-      // TODO: good bye to another nodes?
-      return null;
-    }), context);
+    return CompletableFuture.runAsync(() -> storage.compute(key, (k, v) -> null), context);
   }
 
   @Override

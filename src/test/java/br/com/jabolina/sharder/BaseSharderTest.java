@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
  * @date 1/11/20
  */
 public abstract class BaseSharderTest {
-  private static final int NRO_NODES = 5;
+  protected static final int NRO_NODES = 5;
   private static final int NRO_REPLICATION = 3;
   protected static int basePort = 5000;
   protected List<Sharder> instances = new ArrayList<>();
@@ -22,7 +22,7 @@ public abstract class BaseSharderTest {
         .build();
   }
 
-  public Node[] buildNodes(int size) {
+  protected Node[] buildNodes(int size) {
     List<Node> nodes = new ArrayList<>();
 
     for (int i = 0; i < size; i++) {
@@ -52,5 +52,26 @@ public abstract class BaseSharderTest {
 
   public CompletableFuture<Sharder> startInstance(Sharder sharder) {
     return sharder.start().thenApply(r -> sharder);
+  }
+
+  protected CompletableFuture<Void> wrap(Runnable runnable) {
+    CompletableFuture<Void> future = new CompletableFuture<>();
+    return CompletableFuture.runAsync(new Wrapper(runnable, future));
+  }
+
+  private class Wrapper implements Runnable {
+    private final Runnable runnable;
+    private final CompletableFuture<?> future;
+
+    Wrapper(Runnable runnable, CompletableFuture future) {
+      this.runnable = runnable;
+      this.future = future;
+    }
+
+    @Override
+    public void run() {
+      runnable.run();
+      future.complete(null);
+    }
   }
 }
