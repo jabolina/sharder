@@ -2,7 +2,9 @@ package br.com.jabolina.sharder.message.atomix.request;
 
 import br.com.jabolina.sharder.exception.SharderException;
 import br.com.jabolina.sharder.message.AbstractSharderMessageRequest;
-import br.com.jabolina.sharder.message.atomix.AtomixOperation;
+import br.com.jabolina.sharder.message.Operation;
+import br.com.jabolina.sharder.message.atomix.AtomixMessage;
+import br.com.jabolina.sharder.message.atomix.operation.AbstractAtomixOperation;
 
 /**
  * Atomix client request
@@ -10,8 +12,8 @@ import br.com.jabolina.sharder.message.atomix.AtomixOperation;
  * @author jabolina
  * @date 2/2/20
  */
-public class AtomixExecuteRequest extends AbstractSharderMessageRequest {
-  protected AtomixExecuteRequest(AtomixOperation operation) {
+public class AtomixExecuteRequest extends AbstractSharderMessageRequest implements AtomixMessage {
+  protected AtomixExecuteRequest(Operation operation) {
     super(operation);
   }
 
@@ -24,6 +26,11 @@ public class AtomixExecuteRequest extends AbstractSharderMessageRequest {
     return new Builder();
   }
 
+  @Override
+  public AbstractAtomixOperation operation() {
+    return (AbstractAtomixOperation) super.operation();
+  }
+
   /**
    * Builder for Atomix request operations
    */
@@ -33,7 +40,7 @@ public class AtomixExecuteRequest extends AbstractSharderMessageRequest {
     protected void validate() {
       super.validate();
 
-      if (!(operation instanceof AtomixOperation)) {
+      if (!(operation instanceof AbstractAtomixOperation)) {
         throw new SharderException("Atomix operation not right!");
       }
     }
@@ -41,7 +48,7 @@ public class AtomixExecuteRequest extends AbstractSharderMessageRequest {
     @Override
     public AtomixExecuteRequest build() {
       validate();
-      return new AtomixExecuteRequest((AtomixOperation) operation);
+      return new AtomixExecuteRequest(operation);
     }
   }
 }

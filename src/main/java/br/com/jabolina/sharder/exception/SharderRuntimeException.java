@@ -7,15 +7,29 @@ package br.com.jabolina.sharder.exception;
  * @date 2/2/20
  */
 public class SharderRuntimeException extends SharderException {
-  public SharderRuntimeException() {
+  private final Error error;
+
+  public SharderRuntimeException(Error error) {
+    this.error = error;
   }
 
-  public SharderRuntimeException(String message) {
+  public SharderRuntimeException(Error error, String message) {
     super(message);
+    this.error = error;
   }
 
-  public SharderRuntimeException(Throwable cause) {
+  public SharderRuntimeException(Error error, Throwable cause) {
     super(cause);
+    this.error = error;
+  }
+
+  /**
+   * Returns the exception type
+   *
+   * @return The exception type
+   */
+  public Error error() {
+    return error;
   }
 
   /**
@@ -23,10 +37,11 @@ public class SharderRuntimeException extends SharderException {
    */
   public static class Unavailable extends SharderRuntimeException {
     public Unavailable() {
+      this("Sharder client unavailable");
     }
 
     public Unavailable(String message) {
-      super(message);
+      super(Error.UNVAILABLE, message);
     }
   }
 
@@ -35,10 +50,11 @@ public class SharderRuntimeException extends SharderException {
    */
   public static class Timeout extends SharderRuntimeException {
     public Timeout() {
+      this("Sharder client timed out");
     }
 
     public Timeout(String message) {
-      super(message);
+      super(Error.TIMEOUT, message);
     }
   }
 
@@ -47,10 +63,11 @@ public class SharderRuntimeException extends SharderException {
    */
   public static class ExecutionFailure extends SharderRuntimeException {
     public ExecutionFailure() {
+      this("Failed executing operation");
     }
 
     public ExecutionFailure(String message) {
-      super(message);
+      super(Error.FAILURE, message);
     }
   }
 
@@ -59,10 +76,11 @@ public class SharderRuntimeException extends SharderException {
    */
   public static class Unknown extends SharderRuntimeException {
     public Unknown() {
+      this("Unknown error occurred");
     }
 
     public Unknown(String message) {
-      super(message);
+      super(Error.UNKNOWN, message);
     }
   }
 }

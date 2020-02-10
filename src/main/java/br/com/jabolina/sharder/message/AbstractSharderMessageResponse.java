@@ -63,7 +63,7 @@ public abstract class AbstractSharderMessageResponse implements SharderMessageRe
   }
 
   @SuppressWarnings("unchecked")
-  protected abstract static class Builder<T extends AbstractSharderMessageResponse, U extends Builder<T, U>>
+  public abstract static class Builder<T extends AbstractSharderMessageResponse, U extends Builder<T, U>>
       implements SharderMessageResponse.Builder<T, U> {
     protected Status status;
     protected SharderError error;

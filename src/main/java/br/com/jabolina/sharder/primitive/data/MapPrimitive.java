@@ -1,5 +1,6 @@
 package br.com.jabolina.sharder.primitive.data;
 
+import com.google.common.base.MoreObjects;
 import io.atomix.utils.serializer.Serializer;
 
 /**
@@ -40,5 +41,14 @@ public class MapPrimitive<K, V> extends AbstractPrimitive {
         .addType(key.getClass())
         .addType(value.getClass())
         .build();
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+        .add("name", primitiveName())
+        .add("key", key)
+        .add("value", value)
+        .toString();
   }
 }

@@ -109,4 +109,13 @@ public class Node implements Component<Node>, Member {
 
     return id;
   }
+
+  /**
+   * Get atomix wrapper for node
+   *
+   * @return Atomix wrapper for node
+   */
+  public AtomixWrapper atomix() {
+    return atomix;
+  }
 }

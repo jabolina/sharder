@@ -17,6 +17,15 @@ public abstract class AbstractSharderMessageRequest implements SharderMessageReq
     this.operation = operation;
   }
 
+  /**
+   * Returns operation for request
+   *
+   * @return operation request
+   */
+  public Operation operation() {
+    return operation;
+  }
+
   @SuppressWarnings("unchecked")
   protected abstract static class Builder<T extends AbstractSharderMessageRequest, U extends Builder<T, U>>
       implements SharderMessageRequest.Builder<T, U> {

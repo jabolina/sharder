@@ -203,14 +203,14 @@ public class NettyMulticast implements MulticastComponent {
       }
     }
 
-    throw new SharderRuntimeException("Could not find local inet address");
+    throw new SharderRuntimeException.Timeout("Could not find local inet address");
   }
 
   private NetworkInterface networkInterface(Address localAddr) {
     try {
       return NetworkInterface.getByInetAddress(localAddr.address());
     } catch (SocketException e) {
-      throw new SharderRuntimeException(e);
+      throw new SharderRuntimeException.ExecutionFailure(e.getMessage());
     }
   }
 

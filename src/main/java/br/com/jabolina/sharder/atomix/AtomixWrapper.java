@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 /**
  * Wrapper around Atomix, all requests to Atomix will be issued through this wrapper.
@@ -58,5 +59,16 @@ public class AtomixWrapper implements Wrapper {
   @Override
   public boolean isRunning() {
     return running.get();
+  }
+
+  /**
+   * Execute function using Atomix
+   *
+   * @param function: Function to be executed with Atomix
+   * @param <T>: type of the Atomix response
+   * @return response of type T
+   */
+  public <T> T execute(Function<Atomix, T> function) {
+    return function.apply(atomix);
   }
 }

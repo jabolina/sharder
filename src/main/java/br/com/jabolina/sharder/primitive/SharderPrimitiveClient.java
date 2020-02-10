@@ -1,6 +1,11 @@
 package br.com.jabolina.sharder.primitive;
 
+import br.com.jabolina.sharder.atomix.AtomixClient;
+import br.com.jabolina.sharder.atomix.DefaultAtomixClient;
 import br.com.jabolina.sharder.communication.multicast.Multicast;
+import br.com.jabolina.sharder.concurrent.ConcurrentContext;
+import br.com.jabolina.sharder.concurrent.ConcurrentPoolFactory;
+import br.com.jabolina.sharder.primitive.data.AbstractPrimitive;
 import br.com.jabolina.sharder.primitive.data.CollectionPrimitive;
 import br.com.jabolina.sharder.primitive.data.MapPrimitive;
 import br.com.jabolina.sharder.registry.NodeRegistry;
@@ -25,12 +30,14 @@ public class SharderPrimitiveClient implements SharderPrimitive {
   private final Logger log = LoggerFactory.getLogger(SharderPrimitiveClient.class);
   private final AtomicBoolean started = new AtomicBoolean(false);
   private final PrimitiveRegistry primitiveRegistry;
-  private final NodeRegistry nodeRegistry;
   private final Multicast multicast;
+  private final AtomixClient atomixClient;
+  private final ConcurrentContext pool;
 
   public SharderPrimitiveClient(NodeRegistry nodeRegistry) {
-    this.nodeRegistry = nodeRegistry;
     this.multicast = nodeRegistry.getRegistryConfiguration().getMulticastComponent();
+    this.atomixClient = new DefaultAtomixClient(nodeRegistry);
+    this.pool = ConcurrentPoolFactory.poolContext("atomix-client", nodeRegistry.members().size(), log);
     this.primitiveRegistry = PrimitiveRegistry.builder()
         .build();
   }
@@ -50,33 +57,28 @@ public class SharderPrimitiveClient implements SharderPrimitive {
 
   @Override
   public <K, V> CompletableFuture<Void> primitive(String primitiveName, K key, V value) {
+    CompletableFuture<Void> future = new CompletableFuture<>();
+    final MapPrimitive<K, V> primitive = new MapPrimitive<>(primitiveName, key, value);
     return primitiveRegistry.register(new PrimitiveHolder(primitiveName, value.getClass().getTypeName()))
         .thenApply(v -> {
-          log.debug("Multicast map primitive");
-          MapPrimitive<K, V> primitive = new MapPrimitive<>(primitiveName, key, value);
-          nodeRegistry.members().forEach(node -> multicast.subscribe(primitiveName, bytes -> {
-            MapPrimitive<K, V> received = primitive.serializer().decode(bytes);
-            log.debug("Received for key [{}] value [{}]", received.key(), received.value());
-          }));
-          multicast.multicast(primitiveName, primitive.serialize());
+          primitive(v, primitive, future);
           return v;
         })
-        .thenApply(v -> null);
+        .thenRun(() -> multicast.multicast(primitiveName, primitive.serialize()));
   }
 
   @Override
   public <E> CompletableFuture<Void> primitive(String primitiveName, E element) {
-    return primitiveRegistry.register(new PrimitiveHolder(primitiveName, element.getClass().getTypeName()))
+    CompletableFuture<Void> future = new CompletableFuture<>();
+    CollectionPrimitive<E> primitive = new CollectionPrimitive<>(primitiveName, element);
+    primitiveRegistry.register(new PrimitiveHolder(primitiveName, element.getClass().getTypeName()))
         .thenApply(v -> {
-          CollectionPrimitive<E> primitive = new CollectionPrimitive<>(primitiveName, element);
-          nodeRegistry.members().forEach(node -> multicast.subscribe(primitiveName, bytes -> {
-            CollectionPrimitive<E> received = primitive.serializer().decode(bytes);
-            log.debug("Received on collection [{}]", received.element());
-          }));
-          multicast.multicast(primitiveName, primitive.serialize());
+          primitive(v, primitive, future);
           return v;
         })
-        .thenApply(v -> null);
+        .thenRun(() -> multicast.multicast(primitiveName, primitive.serialize()));
+
+    return future;
   }
 
   @Override
@@ -100,6 +102,15 @@ public class SharderPrimitiveClient implements SharderPrimitive {
   @Override
   public boolean isRunning() {
     return primitiveRegistry.isRunning() && started.get();
+  }
+
+  private void primitive(PrimitiveHolder holder, AbstractPrimitive primitive, CompletableFuture<Void> future) {
+    atomixClient.primitive(holder, primitive)
+        .thenApplyAsync(res -> {
+          log.info("Response is: {}", res);
+          return res;
+        }, pool)
+        .whenComplete((res, err) -> future.complete(null));
   }
 
   public static class Builder implements SharderPrimitive.Builder<SharderPrimitiveClient, Builder> {

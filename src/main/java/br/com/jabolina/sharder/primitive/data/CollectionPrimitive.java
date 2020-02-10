@@ -1,5 +1,6 @@
 package br.com.jabolina.sharder.primitive.data;
 
+import com.google.common.base.MoreObjects;
 import io.atomix.utils.serializer.Serializer;
 
 /**
@@ -30,5 +31,13 @@ public class CollectionPrimitive<E> extends AbstractPrimitive {
         .addType(CollectionPrimitive.class)
         .addType(element.getClass())
         .build();
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+        .add("name", primitiveName())
+        .add("element", element)
+        .toString();
   }
 }
