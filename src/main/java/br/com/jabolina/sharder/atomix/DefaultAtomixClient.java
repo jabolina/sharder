@@ -9,6 +9,7 @@ import br.com.jabolina.sharder.message.atomix.request.AtomixExecuteRequest;
 import br.com.jabolina.sharder.message.atomix.request.AtomixQueryRequest;
 import br.com.jabolina.sharder.message.atomix.response.AtomixExecuteResponse;
 import br.com.jabolina.sharder.message.atomix.response.AtomixQueryResponse;
+import br.com.jabolina.sharder.primitive.Action;
 import br.com.jabolina.sharder.primitive.PrimitiveHolder;
 import br.com.jabolina.sharder.primitive.data.AbstractPrimitive;
 import br.com.jabolina.sharder.registry.NodeRegistry;
@@ -34,11 +35,10 @@ public class DefaultAtomixClient implements AtomixClient {
 
   }
 
-  // TODO: really verify for execute/query
   @Override
-  public CompletableFuture<AbstractSharderMessageResponse> primitive(PrimitiveHolder holder, AbstractPrimitive primitive) {
-    // last entry on primitive registry was null, so this is to create something new
-    if (holder == null) {
+  public CompletableFuture<AbstractSharderMessageResponse> primitive(PrimitiveHolder holder, AbstractPrimitive primitive, Action action) {
+    // Writing something on the primitive
+    if (Action.WRITE.equals(action)) {
       return execute(ExecuteOperation.builder()
           .withPrimitive(primitive)
           .build())

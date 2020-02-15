@@ -1,6 +1,7 @@
 package br.com.jabolina.sharder.atomix;
 
 import br.com.jabolina.sharder.message.AbstractSharderMessageResponse;
+import br.com.jabolina.sharder.primitive.Action;
 import br.com.jabolina.sharder.primitive.PrimitiveHolder;
 import br.com.jabolina.sharder.primitive.data.AbstractPrimitive;
 
@@ -19,5 +20,5 @@ public interface AtomixClient {
    * @param primitive: primitive in execution
    * @return future with request response
    */
-  CompletableFuture<AbstractSharderMessageResponse> primitive(PrimitiveHolder holder, AbstractPrimitive primitive);
+  CompletableFuture<AbstractSharderMessageResponse> primitive(PrimitiveHolder holder, AbstractPrimitive primitive, Action action);
 }

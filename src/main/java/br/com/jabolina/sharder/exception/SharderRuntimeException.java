@@ -41,7 +41,7 @@ public class SharderRuntimeException extends SharderException {
     }
 
     public Unavailable(String message) {
-      super(Error.UNVAILABLE, message);
+      super(Error.UNAVAILABLE, message);
     }
   }
 
@@ -68,6 +68,16 @@ public class SharderRuntimeException extends SharderException {
 
     public ExecutionFailure(String message) {
       super(Error.FAILURE, message);
+    }
+  }
+
+  /**
+   * Thrown when the element to be accessed is not created or is not ready yet
+   */
+  public static class NotReadyException extends SharderRuntimeException {
+
+    public NotReadyException(String message) {
+      super(Error.NOT_READY, message);
     }
   }
 

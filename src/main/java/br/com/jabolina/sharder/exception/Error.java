@@ -11,7 +11,7 @@ public enum Error {
   /**
    * Error when execution could not find the client to deliver
    */
-  UNVAILABLE {
+  UNAVAILABLE {
     @Override
     SharderRuntimeException exception() {
       return exception("Client not available!");
@@ -50,6 +50,18 @@ public enum Error {
     @Override
     SharderRuntimeException exception(String message) {
       return message != null ? new SharderRuntimeException.ExecutionFailure(message) : exception();
+    }
+  },
+
+  NOT_READY {
+    @Override
+    SharderRuntimeException exception() {
+      return exception("Element not created to be accessed!");
+    }
+
+    @Override
+    SharderRuntimeException exception(String message) {
+      return message != null ? new SharderRuntimeException.NotReadyException(message) : exception();
     }
   },
 

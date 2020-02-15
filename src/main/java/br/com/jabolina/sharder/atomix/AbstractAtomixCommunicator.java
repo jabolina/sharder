@@ -45,7 +45,7 @@ public abstract class AbstractAtomixCommunicator implements Communicator {
     log(request);
     return CompletableFuture.completedFuture(AtomixExecuteResponse.builder()
         .withStatus(SharderMessageResponse.Status.ERROR)
-        .withError(Error.UNVAILABLE)
+        .withError(Error.UNAVAILABLE)
         .build());
   }
 
@@ -54,7 +54,7 @@ public abstract class AbstractAtomixCommunicator implements Communicator {
     log(request);
     return CompletableFuture.completedFuture(AtomixQueryResponse.builder()
         .withStatus(SharderMessageResponse.Status.ERROR)
-        .withError(Error.UNVAILABLE)
+        .withError(Error.UNAVAILABLE)
         .build());
   }
 
