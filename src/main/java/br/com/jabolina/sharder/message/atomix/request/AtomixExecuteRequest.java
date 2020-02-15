@@ -5,6 +5,7 @@ import br.com.jabolina.sharder.message.AbstractSharderMessageRequest;
 import br.com.jabolina.sharder.message.Operation;
 import br.com.jabolina.sharder.message.atomix.AtomixMessage;
 import br.com.jabolina.sharder.message.atomix.operation.AbstractAtomixOperation;
+import br.com.jabolina.sharder.message.atomix.operation.ExecuteOperation;
 
 /**
  * Atomix client request
@@ -27,8 +28,8 @@ public class AtomixExecuteRequest extends AbstractSharderMessageRequest implemen
   }
 
   @Override
-  public AbstractAtomixOperation operation() {
-    return (AbstractAtomixOperation) super.operation();
+  public ExecuteOperation operation() {
+    return (ExecuteOperation) super.operation();
   }
 
   /**

@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 public class AtomixCommunicator extends AbstractAtomixCommunicator {
   private final AtomixInvoker invoker;
 
-  protected AtomixCommunicator(Node node, AtomixInvoker invoker) {
+  AtomixCommunicator(Node node, AtomixInvoker invoker) {
     super(node);
     this.invoker = invoker;
   }
@@ -27,11 +27,14 @@ public class AtomixCommunicator extends AbstractAtomixCommunicator {
     AbstractAtomixOperation operation = request.operation();
     AbstractPrimitive primitive = operation.primitive();
     log.info("Received primitive {}", primitive);
-    return super.execute(request);
+    return invoker.invoke(request.operation());
   }
 
   @Override
   public CompletableFuture<AtomixQueryResponse> query(AtomixQueryRequest request) {
-    return super.query(request);
+    AbstractAtomixOperation operation = request.operation();
+    AbstractPrimitive primitive = operation.primitive();
+    log.info("Received primitive {}", primitive);
+    return invoker.invoke(request.operation());
   }
 }

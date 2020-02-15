@@ -5,6 +5,7 @@ import br.com.jabolina.sharder.message.AbstractSharderMessageRequest;
 import br.com.jabolina.sharder.message.Operation;
 import br.com.jabolina.sharder.message.atomix.AtomixMessage;
 import br.com.jabolina.sharder.message.atomix.operation.AbstractAtomixOperation;
+import br.com.jabolina.sharder.message.atomix.operation.QueryOperation;
 
 /**
  * @author jabolina
@@ -17,6 +18,11 @@ public class AtomixQueryRequest extends AbstractSharderMessageRequest implements
 
   public static Builder builder() {
     return new Builder();
+  }
+
+  @Override
+  public QueryOperation operation() {
+    return (QueryOperation) super.operation();
   }
 
   public static final class Builder extends AbstractSharderMessageRequest.Builder<AtomixQueryRequest, Builder> {

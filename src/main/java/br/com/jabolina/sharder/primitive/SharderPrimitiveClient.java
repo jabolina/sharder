@@ -34,10 +34,10 @@ public class SharderPrimitiveClient implements SharderPrimitive {
   private final AtomixClient atomixClient;
   private final ConcurrentContext pool;
 
-  public SharderPrimitiveClient(NodeRegistry nodeRegistry) {
+  private SharderPrimitiveClient(NodeRegistry nodeRegistry) {
     this.multicast = nodeRegistry.getRegistryConfiguration().getMulticastComponent();
-    this.atomixClient = new DefaultAtomixClient(nodeRegistry);
     this.pool = ConcurrentPoolFactory.poolContext("atomix-client", nodeRegistry.members().size(), log);
+    this.atomixClient = new DefaultAtomixClient(nodeRegistry, this.pool);
     this.primitiveRegistry = PrimitiveRegistry.builder()
         .build();
   }

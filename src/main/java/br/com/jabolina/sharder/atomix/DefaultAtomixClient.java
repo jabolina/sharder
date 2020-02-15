@@ -1,6 +1,7 @@
 package br.com.jabolina.sharder.atomix;
 
 import br.com.jabolina.sharder.communication.multicast.Multicast;
+import br.com.jabolina.sharder.concurrent.ConcurrentContext;
 import br.com.jabolina.sharder.message.AbstractSharderMessageResponse;
 import br.com.jabolina.sharder.message.atomix.operation.AbstractAtomixOperation;
 import br.com.jabolina.sharder.message.atomix.operation.ExecuteOperation;
@@ -27,9 +28,11 @@ public class DefaultAtomixClient implements AtomixClient {
   private final NodeRegistry nodeRegistry;
   private List<AtomixCommunicator> communicators;
   private final Multicast multicast;
+  private final ConcurrentContext context;
 
-  public DefaultAtomixClient(NodeRegistry nodeRegistry) {
+  public DefaultAtomixClient(NodeRegistry nodeRegistry, ConcurrentContext context) {
     this.nodeRegistry = nodeRegistry;
+    this.context = context;
     this.communicators = communicators();
     this.multicast = nodeRegistry.getRegistryConfiguration().getMulticastComponent();
 
@@ -73,9 +76,8 @@ public class DefaultAtomixClient implements AtomixClient {
   }
 
   private List<AtomixCommunicator> communicators() {
-    final AtomixInvoker invoker = new AtomixInvoker();
     return nodeRegistry.members().stream()
-        .map(node -> new AtomixCommunicator(node, invoker))
+        .map(node -> new AtomixCommunicator(node, new AtomixInvoker(node, this.context)))
         .collect(Collectors.toList());
   }
 

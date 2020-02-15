@@ -13,12 +13,12 @@ public enum Error {
    */
   UNAVAILABLE {
     @Override
-    SharderRuntimeException exception() {
+    public SharderRuntimeException exception() {
       return exception("Client not available!");
     }
 
     @Override
-    SharderRuntimeException exception(String message) {
+    public SharderRuntimeException exception(String message) {
       return message != null ? new SharderRuntimeException.Unavailable(message) : exception();
     }
   },
@@ -28,12 +28,12 @@ public enum Error {
    */
   TIMEOUT {
     @Override
-    SharderRuntimeException exception() {
+    public SharderRuntimeException exception() {
       return exception("Timeout for command execution!");
     }
 
     @Override
-    SharderRuntimeException exception(String message) {
+    public SharderRuntimeException exception(String message) {
       return message != null ? new SharderRuntimeException.Timeout(message) : exception();
     }
   },
@@ -43,24 +43,24 @@ public enum Error {
    */
   FAILURE {
     @Override
-    SharderRuntimeException exception() {
+    public SharderRuntimeException exception() {
       return exception("Error executing command!");
     }
 
     @Override
-    SharderRuntimeException exception(String message) {
+    public SharderRuntimeException exception(String message) {
       return message != null ? new SharderRuntimeException.ExecutionFailure(message) : exception();
     }
   },
 
   NOT_READY {
     @Override
-    SharderRuntimeException exception() {
+    public SharderRuntimeException exception() {
       return exception("Element not created to be accessed!");
     }
 
     @Override
-    SharderRuntimeException exception(String message) {
+    public SharderRuntimeException exception(String message) {
       return message != null ? new SharderRuntimeException.NotReadyException(message) : exception();
     }
   },
@@ -70,12 +70,12 @@ public enum Error {
    */
   UNKNOWN {
     @Override
-    SharderRuntimeException exception() {
+    public SharderRuntimeException exception() {
       return exception("An unexpected error occurred!");
     }
 
     @Override
-    SharderRuntimeException exception(String message) {
+    public SharderRuntimeException exception(String message) {
       return message != null ? new SharderRuntimeException.Unknown(message) : exception();
     }
   };
@@ -85,7 +85,7 @@ public enum Error {
    *
    * @return Runtime exception
    */
-  abstract SharderRuntimeException exception();
+  public abstract SharderRuntimeException exception();
 
   /**
    * Creates the runtime exception for the error with the given message
@@ -93,5 +93,5 @@ public enum Error {
    * @param message: message for the exception
    * @return Runtime exception
    */
-  abstract SharderRuntimeException exception(String message);
+  public abstract SharderRuntimeException exception(String message);
 }

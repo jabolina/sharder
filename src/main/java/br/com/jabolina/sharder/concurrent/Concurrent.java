@@ -13,8 +13,10 @@ public class Concurrent extends Thread {
     super(r);
   }
 
-  public WeakReference<ConcurrentContext> getContext() {
-    return context;
+  public ConcurrentContext getContext() {
+    return context != null
+        ? context.get()
+        : null;
   }
 
   public Concurrent setContext(ConcurrentContext context) {

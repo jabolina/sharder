@@ -1,5 +1,6 @@
 package br.com.jabolina.sharder;
 
+import br.com.jabolina.sharder.primitive.Action;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,7 +35,7 @@ public class PrimitiveClientTest extends BaseSharderTest {
 
     TestPrimitive testPrimitive = new TestPrimitive();
     testPrimitive.value = TEST_VALUE;
-    sharder.primitive("test-map", "test-key", testPrimitive)
+    sharder.primitive("test-map", "test-key", testPrimitive, Action.WRITE)
         .whenComplete((res, err) -> latch.countDown());
 
     latch.await(10, TimeUnit.SECONDS);
