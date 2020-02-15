@@ -6,7 +6,8 @@ package br.com.jabolina.sharder.utils.contract;
  * @author jabolina
  * @date 2/15/20
  */
-public interface Conversor<T, U> {
+@FunctionalInterface
+public interface Converter<T, U> {
 
   /**
    * Convert the element

@@ -3,21 +3,19 @@ package br.com.jabolina.sharder.atomix;
 import br.com.jabolina.sharder.message.atomix.operation.ExecuteOperation;
 import br.com.jabolina.sharder.message.atomix.request.AtomixExecuteRequest;
 import br.com.jabolina.sharder.message.atomix.response.AtomixExecuteResponse;
-import br.com.jabolina.sharder.utils.contract.Conversor;
+import br.com.jabolina.sharder.utils.contract.Converter;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 /**
  * @author jabolina
  * @date 2/15/20
  */
-public class AtomixExecuteHandler implements Function<AtomixExecuteRequest, CompletableFuture<AtomixExecuteResponse>> {
-  private final AtomixWrapper atomix;
-  private final Conversor<AtomixExecuteRequest, CompletableFuture<AtomixExecuteResponse>> EXECUTE_CONVERSOR = request -> {
+public final class AtomixExecuteHandler extends AtomixRequestHandler<AtomixExecuteRequest, CompletableFuture<AtomixExecuteResponse>> {
+  private final Converter<AtomixExecuteRequest, CompletableFuture<AtomixExecuteResponse>> converter = request -> {
     CompletableFuture<AtomixExecuteResponse> future = new CompletableFuture<>();
     ExecuteOperation operation = request.operation();
-    AtomixExecuteHandler.this.atomix.execute(atx -> {
+    AtomixExecuteHandler.this.wrapper.execute(atomix -> {
       AtomixExecuteResponse response = AtomixExecuteResponse.builder()
           .withResult(new byte[0])
           .build();
@@ -27,12 +25,12 @@ public class AtomixExecuteHandler implements Function<AtomixExecuteRequest, Comp
     return future;
   };
 
-  public AtomixExecuteHandler(AtomixWrapper atomix) {
-    this.atomix = atomix;
+  AtomixExecuteHandler(AtomixWrapper wrapper) {
+    super(wrapper);
   }
 
   @Override
-  public CompletableFuture<AtomixExecuteResponse> apply(AtomixExecuteRequest request) {
-    return EXECUTE_CONVERSOR.convert(request);
+  public Converter<AtomixExecuteRequest, CompletableFuture<AtomixExecuteResponse>> converter() {
+    return converter;
   }
 }

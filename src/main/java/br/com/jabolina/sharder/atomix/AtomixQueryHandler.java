@@ -3,21 +3,19 @@ package br.com.jabolina.sharder.atomix;
 import br.com.jabolina.sharder.message.atomix.operation.QueryOperation;
 import br.com.jabolina.sharder.message.atomix.request.AtomixQueryRequest;
 import br.com.jabolina.sharder.message.atomix.response.AtomixQueryResponse;
-import br.com.jabolina.sharder.utils.contract.Conversor;
+import br.com.jabolina.sharder.utils.contract.Converter;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 /**
  * @author jabolina
  * @date 2/15/20
  */
-public class AtomixQueryHandler implements Function<AtomixQueryRequest, CompletableFuture<AtomixQueryResponse>> {
-  private final AtomixWrapper wrapper;
-  private final Conversor<AtomixQueryRequest, CompletableFuture<AtomixQueryResponse>> QUERY_CONVERSOR = request -> {
+public final class AtomixQueryHandler extends AtomixRequestHandler<AtomixQueryRequest, CompletableFuture<AtomixQueryResponse>> {
+  private final Converter<AtomixQueryRequest, CompletableFuture<AtomixQueryResponse>> converter = request -> {
     CompletableFuture<AtomixQueryResponse> future = new CompletableFuture<>();
     QueryOperation operation = request.operation();
-    AtomixQueryHandler.this.wrapper.execute(atx -> {
+    AtomixQueryHandler.this.wrapper.execute(atomix -> {
       AtomixQueryResponse response = AtomixQueryResponse.builder()
           .withResult(new byte[0])
           .build();
@@ -27,12 +25,12 @@ public class AtomixQueryHandler implements Function<AtomixQueryRequest, Completa
     return future;
   };
 
-  public AtomixQueryHandler(AtomixWrapper wrapper) {
-    this.wrapper = wrapper;
+  AtomixQueryHandler(AtomixWrapper wrapper) {
+    super(wrapper);
   }
 
   @Override
-  public CompletableFuture<AtomixQueryResponse> apply(AtomixQueryRequest request) {
-    return QUERY_CONVERSOR.convert(request);
+  protected Converter<AtomixQueryRequest, CompletableFuture<AtomixQueryResponse>> converter() {
+    return converter;
   }
 }
