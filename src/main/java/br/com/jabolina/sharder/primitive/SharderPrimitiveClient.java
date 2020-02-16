@@ -59,12 +59,13 @@ public class SharderPrimitiveClient implements SharderPrimitive {
   public <K, V> CompletableFuture<Void> primitive(String primitiveName, K key, V value, Action action) {
     CompletableFuture<Void> future = new CompletableFuture<>();
     final MapPrimitive<K, V> primitive = new MapPrimitive<>(primitiveName, key, value);
-    return primitiveRegistry.register(new PrimitiveHolder(primitiveName, value.getClass().getTypeName()))
+    primitiveRegistry.register(new PrimitiveHolder(primitiveName, value.getClass().getTypeName()))
         .thenApply(v -> {
           primitive(v, primitive, action, future);
           return v;
         })
         .thenRun(() -> multicast.multicast(primitiveName, primitive.serialize()));
+    return future;
   }
 
   @Override

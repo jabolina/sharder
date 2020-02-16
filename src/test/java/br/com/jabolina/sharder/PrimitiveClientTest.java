@@ -37,8 +37,8 @@ public class PrimitiveClientTest extends BaseSharderTest {
     testPrimitive.value = TEST_VALUE;
     sharder.primitive("test-map", "test-key", testPrimitive, Action.WRITE)
         .whenComplete((res, err) -> latch.countDown());
-
     latch.await(10, TimeUnit.SECONDS);
+    // Thread.sleep(10_000);
   }
 
   @Test

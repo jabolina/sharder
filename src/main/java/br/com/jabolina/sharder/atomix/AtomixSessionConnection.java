@@ -71,8 +71,8 @@ final class AtomixSessionConnection {
       Function<T, CompletableFuture<U>> execute,
       CompletableFuture<U> future,
       int attempt) {
-    if (REQUEST_MAX_ATTEMPTS < attempt) {
-      execute.apply(request).whenCompleteAsync((res, err) -> {
+    if (attempt < REQUEST_MAX_ATTEMPTS) {
+      execute.apply(request).whenComplete((res, err) -> {
         if (err != null || res != null) {
           response(request, res, err, execute, future, attempt);
         } else {

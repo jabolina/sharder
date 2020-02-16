@@ -1,12 +1,14 @@
 package br.com.jabolina.sharder.message;
 
+import java.io.Serializable;
+
 /**
  * Base generic type for all sharder exchanged messages
  *
  * @author jabolina
  * @date 2/1/20
  */
-public interface SharderMessage {
+public interface SharderMessage extends Serializable {
 
   /**
    * Basic builder interface for creating Sharder messages

@@ -1,5 +1,6 @@
 package br.com.jabolina.sharder.atomix;
 
+import br.com.jabolina.sharder.message.SharderMessageResponse;
 import br.com.jabolina.sharder.message.atomix.operation.QueryOperation;
 import br.com.jabolina.sharder.message.atomix.request.AtomixQueryRequest;
 import br.com.jabolina.sharder.message.atomix.response.AtomixQueryResponse;
@@ -17,6 +18,7 @@ public final class AtomixQueryHandler extends AtomixRequestHandler<AtomixQueryRe
     QueryOperation operation = request.operation();
     AtomixQueryHandler.this.wrapper.execute(atomix -> {
       AtomixQueryResponse response = AtomixQueryResponse.builder()
+          .withStatus(SharderMessageResponse.Status.OK)
           .withResult(new byte[0])
           .build();
       future.complete(response);

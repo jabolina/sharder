@@ -165,8 +165,19 @@ final class AtomixInvoker {
     }
 
     @Override
-    public void accept(AtomixExecuteResponse atomixExecuteResponse, Throwable throwable) {
-      System.out.println("RECEVIED EXECUTE RESPONSE");
+    public void accept(AtomixExecuteResponse response, Throwable throwable) {
+      System.out.println("RECEVIED EXECUTE RESPONSE1");
+      if (throwable == null) {
+        if (response != null) {
+          System.out.println("RECEVIED EXECUTE RESPONSE ");
+          complete(response);
+        } else {
+          System.out.println("response is null!!!!!");
+        }
+      } else {
+        System.out.println("throwable is not null!!!");
+        throwable.printStackTrace();
+      }
     }
   }
 
