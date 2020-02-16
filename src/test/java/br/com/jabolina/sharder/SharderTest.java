@@ -7,8 +7,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -25,7 +23,6 @@ import java.util.function.Consumer;
 public class SharderTest extends BaseSharderTest {
   private static final int NRO_INSTANCES = 1;
   private static final String ATOMIX_NODE_NAME = "%d-node-%s";
-  private static final Logger LOGGER = LoggerFactory.getLogger(SharderTest.class);
 
   @After
   @Before

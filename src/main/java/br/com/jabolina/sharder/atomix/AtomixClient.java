@@ -18,6 +18,7 @@ public interface AtomixClient {
    *
    * @param holder: primitive holder
    * @param primitive: primitive in execution
+   * @param action: which kind of action is being applied into primitive
    * @return future with request response
    */
   CompletableFuture<AbstractSharderMessageResponse> primitive(PrimitiveHolder holder, AbstractPrimitive primitive, Action action);

@@ -6,6 +6,7 @@ import br.com.jabolina.sharder.communication.multicast.MulticastComponent;
 import br.com.jabolina.sharder.communication.multicast.NettyMulticast;
 import br.com.jabolina.sharder.concurrent.ConcurrentContext;
 import br.com.jabolina.sharder.concurrent.SingleConcurrent;
+import br.com.jabolina.sharder.message.AbstractSharderMessageResponse;
 import br.com.jabolina.sharder.primitive.Action;
 import br.com.jabolina.sharder.primitive.SharderPrimitive;
 import br.com.jabolina.sharder.primitive.SharderPrimitiveClient;
@@ -147,12 +148,12 @@ public class Cluster implements Component<Cluster>, Member, SharderPrimitiveFact
   }
 
   @Override
-  public <K, V> CompletableFuture<Void> primitive(String primitiveName, K key, V value, Action action) {
+  public <K, V> CompletableFuture<AbstractSharderMessageResponse> primitive(String primitiveName, K key, V value, Action action) {
     return primitiveClient.primitive(primitiveName, key, value, action);
   }
 
   @Override
-  public <E> CompletableFuture<Void> primitive(String primitiveName, E element, Action action) {
+  public <E> CompletableFuture<AbstractSharderMessageResponse> primitive(String primitiveName, E element, Action action) {
     return primitiveClient.primitive(primitiveName, element, action);
   }
 }

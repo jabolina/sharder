@@ -1,5 +1,6 @@
 package br.com.jabolina.sharder;
 
+import br.com.jabolina.sharder.message.SharderMessageResponse;
 import br.com.jabolina.sharder.primitive.Action;
 import org.junit.After;
 import org.junit.Assert;
@@ -36,7 +37,11 @@ public class PrimitiveClientTest extends BaseSharderTest {
     TestPrimitive testPrimitive = new TestPrimitive();
     testPrimitive.value = TEST_VALUE;
     sharder.primitive("test-map", "test-key", testPrimitive, Action.WRITE)
-        .whenComplete((res, err) -> latch.countDown());
+        .whenComplete((res, err) -> {
+          LOGGER.info("response is [{}]", new String(res.result()));
+          Assert.assertEquals(SharderMessageResponse.Status.OK, res.status());
+          latch.countDown();
+        });
     latch.await(10, TimeUnit.SECONDS);
     // Thread.sleep(10_000);
   }
@@ -50,7 +55,10 @@ public class PrimitiveClientTest extends BaseSharderTest {
     TestPrimitive testPrimitive = new TestPrimitive();
     testPrimitive.value = TEST_VALUE;
     sharder.primitive("test-collection", testPrimitive)
-        .whenComplete((res, err) -> latch.countDown());
+        .whenComplete((res, err) -> {
+          LOGGER.info("response is [{}]", res);
+          latch.countDown();
+        });
 
     latch.await(10, TimeUnit.SECONDS);
   }

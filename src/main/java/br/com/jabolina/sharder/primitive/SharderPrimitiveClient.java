@@ -5,6 +5,7 @@ import br.com.jabolina.sharder.atomix.DefaultAtomixClient;
 import br.com.jabolina.sharder.communication.multicast.Multicast;
 import br.com.jabolina.sharder.concurrent.ConcurrentContext;
 import br.com.jabolina.sharder.concurrent.ConcurrentPoolFactory;
+import br.com.jabolina.sharder.message.AbstractSharderMessageResponse;
 import br.com.jabolina.sharder.primitive.data.AbstractPrimitive;
 import br.com.jabolina.sharder.primitive.data.CollectionPrimitive;
 import br.com.jabolina.sharder.primitive.data.MapPrimitive;
@@ -56,8 +57,8 @@ public class SharderPrimitiveClient implements SharderPrimitive {
   }
 
   @Override
-  public <K, V> CompletableFuture<Void> primitive(String primitiveName, K key, V value, Action action) {
-    CompletableFuture<Void> future = new CompletableFuture<>();
+  public <K, V> CompletableFuture<AbstractSharderMessageResponse> primitive(String primitiveName, K key, V value, Action action) {
+    CompletableFuture<AbstractSharderMessageResponse> future = new CompletableFuture<>();
     final MapPrimitive<K, V> primitive = new MapPrimitive<>(primitiveName, key, value);
     primitiveRegistry.register(new PrimitiveHolder(primitiveName, value.getClass().getTypeName()))
         .thenApply(v -> {
@@ -69,8 +70,8 @@ public class SharderPrimitiveClient implements SharderPrimitive {
   }
 
   @Override
-  public <E> CompletableFuture<Void> primitive(String primitiveName, E element, Action action) {
-    CompletableFuture<Void> future = new CompletableFuture<>();
+  public <E> CompletableFuture<AbstractSharderMessageResponse> primitive(String primitiveName, E element, Action action) {
+    CompletableFuture<AbstractSharderMessageResponse> future = new CompletableFuture<>();
     CollectionPrimitive<E> primitive = new CollectionPrimitive<>(primitiveName, element);
     primitiveRegistry.register(new PrimitiveHolder(primitiveName, element.getClass().getTypeName()))
         .thenApply(v -> {
@@ -105,13 +106,9 @@ public class SharderPrimitiveClient implements SharderPrimitive {
     return primitiveRegistry.isRunning() && started.get();
   }
 
-  private void primitive(PrimitiveHolder holder, AbstractPrimitive primitive, Action action, CompletableFuture<Void> future) {
+  private void primitive(PrimitiveHolder holder, AbstractPrimitive primitive, Action action, CompletableFuture<AbstractSharderMessageResponse> future) {
     atomixClient.primitive(holder, primitive, action)
-        .thenApplyAsync(res -> {
-          log.info("Response is: {}", res);
-          return res;
-        }, pool)
-        .whenComplete((res, err) -> future.complete(null));
+        .whenCompleteAsync((res, err) -> future.complete(res), pool);
   }
 
   public static class Builder implements SharderPrimitive.Builder<SharderPrimitiveClient, Builder> {

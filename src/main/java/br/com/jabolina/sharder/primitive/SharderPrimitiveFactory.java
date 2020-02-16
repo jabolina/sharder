@@ -1,5 +1,6 @@
 package br.com.jabolina.sharder.primitive;
 
+import br.com.jabolina.sharder.message.AbstractSharderMessageResponse;
 import br.com.jabolina.sharder.registry.NodeRegistry;
 
 import java.util.Collection;
@@ -12,13 +13,11 @@ import java.util.function.Function;
  * @date 2/8/20
  */
 public interface SharderPrimitiveFactory {
-  int MAX_TIMEOUT_SECS = 30;
-
-  default <K, V> CompletableFuture<Void> primitive(String primitiveName, K key, V value) {
+  default <K, V> CompletableFuture<AbstractSharderMessageResponse> primitive(String primitiveName, K key, V value) {
     return primitive(primitiveName, key, value, Action.READ);
   }
 
-  default <T> CompletableFuture<Void> primitive(String primitiveName, T element) {
+  default <T> CompletableFuture<AbstractSharderMessageResponse> primitive(String primitiveName, T element) {
     return primitive(primitiveName, element, Action.READ);
   }
 
@@ -26,9 +25,9 @@ public interface SharderPrimitiveFactory {
 
   <E> void execute(String primitiveName, Function<Collection<E>, Collection<E>> func);
 
-  <K, V> CompletableFuture<Void> primitive(String primitiveName, K key, V value, Action action);
+  <K, V> CompletableFuture<AbstractSharderMessageResponse> primitive(String primitiveName, K key, V value, Action action);
 
-  <T> CompletableFuture<Void> primitive(String primitiveName, T element, Action action);
+  <T> CompletableFuture<AbstractSharderMessageResponse> primitive(String primitiveName, T element, Action action);
 
   interface Builder<T extends SharderPrimitiveFactory, U extends Builder> extends br.com.jabolina.sharder.utils.contract.Builder<T> {
 

@@ -1,6 +1,8 @@
 package br.com.jabolina.sharder;
 
 import br.com.jabolina.sharder.cluster.node.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -17,6 +19,7 @@ public abstract class BaseSharderTest {
   protected static final int NRO_NODES = 5;
   private static final int NRO_REPLICATION = 3;
   protected static int basePort = 5000;
+  protected static final Logger LOGGER = LoggerFactory.getLogger(BaseSharderTest.class);
   protected List<Sharder> instances = new ArrayList<>();
 
   public Node buildNode(int idx) {
