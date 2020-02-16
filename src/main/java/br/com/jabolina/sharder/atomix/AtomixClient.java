@@ -13,6 +13,10 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface AtomixClient {
 
+  static String topicName(String name, Action action) {
+    return String.format("%s-%s", name, action.name());
+  }
+
   /**
    * Handle request to Atomix
    *

@@ -38,7 +38,7 @@ public class PrimitiveClientTest extends BaseSharderTest {
     testPrimitive.value = TEST_VALUE;
     sharder.primitive("test-map", "test-key", testPrimitive, Action.WRITE)
         .whenComplete((res, err) -> {
-          LOGGER.info("response is [{}]", res);
+          LOGGER.info("Finished write");
           Assert.assertEquals(SharderMessageResponse.Status.OK, res.status());
           Assert.assertEquals(0, res.result().length);
           latch.countDown();
@@ -46,7 +46,7 @@ public class PrimitiveClientTest extends BaseSharderTest {
 
     sharder.primitive("test-map", "test-key", testPrimitive, Action.READ)
         .whenComplete((res, err) -> {
-          LOGGER.info("response is [{}]", new String(res.result()));
+          LOGGER.info("response is [{}]", res.result());
           Assert.assertEquals(SharderMessageResponse.Status.OK, res.status());
           latch.countDown();
         });

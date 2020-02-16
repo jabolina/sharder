@@ -27,7 +27,7 @@ public class AtomixCommunicator extends AbstractAtomixCommunicator {
     AbstractAtomixOperation operation = request.operation();
     AbstractPrimitive primitive = operation.primitive();
     log.info("Received primitive {}", primitive);
-    return invoker.invoke(request.operation());
+    return invoker.invoke(log(request).operation());
   }
 
   @Override
@@ -35,6 +35,6 @@ public class AtomixCommunicator extends AbstractAtomixCommunicator {
     AbstractAtomixOperation operation = request.operation();
     AbstractPrimitive primitive = operation.primitive();
     log.info("Received primitive {}", primitive);
-    return invoker.invoke(request.operation());
+    return invoker.invoke(log(request).operation());
   }
 }

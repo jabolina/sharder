@@ -5,6 +5,7 @@ import br.com.jabolina.sharder.concurrent.ConcurrentContext;
 import br.com.jabolina.sharder.exception.Error;
 import br.com.jabolina.sharder.exception.SharderRuntimeException;
 import br.com.jabolina.sharder.message.AbstractSharderMessageResponse;
+import br.com.jabolina.sharder.message.SharderMessageResponse;
 import br.com.jabolina.sharder.message.atomix.operation.AbstractAtomixOperation;
 import br.com.jabolina.sharder.message.atomix.operation.ExecuteOperation;
 import br.com.jabolina.sharder.message.atomix.operation.QueryOperation;
@@ -14,17 +15,27 @@ import br.com.jabolina.sharder.message.atomix.response.AtomixExecuteResponse;
 import br.com.jabolina.sharder.message.atomix.response.AtomixQueryResponse;
 import com.google.common.collect.Maps;
 
+import java.net.ConnectException;
+import java.nio.channels.ClosedChannelException;
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 
 /**
  * @author jabolina
  * @date 2/9/20
  */
 final class AtomixInvoker {
-  private final static int MAX_ATTEMPTS = 30;
+  private static final int MAX_ATTEMPTS = 30;
+  private static final int[] FIBONACCI_BACKOFF = new int[]{1, 1, 2, 3, 5};
+  private static final Predicate<Throwable> THROWABLE_PREDICATE = e ->
+      e instanceof ConnectException
+          || e instanceof TimeoutException
+          || e instanceof ClosedChannelException;
   private final AtomixSessionConnection sessionConnection;
   private final ConcurrentContext context;
   private final Map<String, ActionAttempt> attempts = Maps.newConcurrentMap();
@@ -36,13 +47,13 @@ final class AtomixInvoker {
 
   public CompletableFuture<AtomixExecuteResponse> invoke(ExecuteOperation operation) {
     CompletableFuture<AtomixExecuteResponse> future = new CompletableFuture<>();
-    invoke(new ExecuteAttempt(0, operation, future));
+    invoke(new ExecuteAttempt(1, operation, future));
     return future;
   }
 
   public CompletableFuture<AtomixQueryResponse> invoke(QueryOperation operation) {
     CompletableFuture<AtomixQueryResponse> future = new CompletableFuture<>();
-    invoke(new QueryAttempt(0, operation, future));
+    invoke(new QueryAttempt(1, operation, future));
     return future;
   }
 
@@ -94,13 +105,41 @@ final class AtomixInvoker {
      */
     protected abstract void complete(U response);
 
+    @Override
+    public void accept(U response, Throwable throwable) {
+      if (throwable == null) {
+        if (response.status().equals(SharderMessageResponse.Status.OK)) {
+          complete(response);
+        }
+        // Some problem while executing command, retry now
+        else if (response.error().error().equals(Error.FAILURE)) {
+          retry();
+        }
+        // Could not find client to execute or the usage is wrong
+        else if (response.error().error().equals(Error.UNAVAILABLE) || response.error().error().equals(Error.WRONG_USAGE)) {
+          complete(response.error().exception());
+        }
+        // Could not execute command right now
+        else if (response.error().error().equals(Error.TIMEOUT) || response.error().error().equals(Error.NOT_READY)) {
+          retry(Duration.ofSeconds(FIBONACCI_BACKOFF[Math.min(attempt - 1, FIBONACCI_BACKOFF.length - 1)]));
+        } else {
+          complete(response.error().exception());
+        }
+      } else if (THROWABLE_PREDICATE.test(throwable)
+          || throwable instanceof CompletionException && THROWABLE_PREDICATE.test(throwable.getCause())) {
+        retry(Duration.ofSeconds(FIBONACCI_BACKOFF[Math.min(attempt - 1, FIBONACCI_BACKOFF.length - 1)]));
+      } else {
+        fail(throwable);
+      }
+    }
+
     /**
      * Completes the operation with an exception.
      *
      * @param error The completion exception.
      */
     protected void complete(Throwable error) {
-
+      future.completeExceptionally(error);
     }
 
     /**
@@ -116,7 +155,7 @@ final class AtomixInvoker {
      * @param t The exception with which to fail the attempt.
      */
     public void fail(Throwable t) {
-      future.completeExceptionally(t);
+      complete(t);
     }
 
     /**
@@ -136,6 +175,11 @@ final class AtomixInvoker {
     }
   }
 
+  /**
+   * Attempt to execute something on Atomix.
+   * </p>
+   * Handle an execute request and response, retrying and finishing when is needed.
+   */
   private final class ExecuteAttempt extends ActionAttempt<ExecuteOperation, AtomixExecuteResponse> {
 
     protected ExecuteAttempt(int attempt, ExecuteOperation operation, CompletableFuture<AtomixExecuteResponse> future) {
@@ -163,24 +207,13 @@ final class AtomixInvoker {
     protected void complete(AtomixExecuteResponse response) {
       future.complete(response);
     }
-
-    @Override
-    public void accept(AtomixExecuteResponse response, Throwable throwable) {
-      System.out.println("RECEVIED EXECUTE RESPONSE1");
-      if (throwable == null) {
-        if (response != null) {
-          System.out.println("RECEVIED EXECUTE RESPONSE ");
-          complete(response);
-        } else {
-          System.out.println("response is null!!!!!");
-        }
-      } else {
-        System.out.println("throwable is not null!!!");
-        throwable.printStackTrace();
-      }
-    }
   }
 
+  /**
+   * Attempt to query something on Atomix.
+   * </p>
+   * Handle an query request and response, retrying and finishing when is needed.
+   */
   private final class QueryAttempt extends ActionAttempt<QueryOperation, AtomixQueryResponse> {
 
     protected QueryAttempt(int attempt, QueryOperation operation, CompletableFuture<AtomixQueryResponse> future) {
@@ -207,11 +240,6 @@ final class AtomixInvoker {
     @Override
     protected void complete(AtomixQueryResponse response) {
       future.complete(response);
-    }
-
-    @Override
-    public void accept(AtomixQueryResponse atomixQueryResponse, Throwable throwable) {
-      System.out.println("RECEIVED QUERY RESPONSE");
     }
   }
 }

@@ -1,6 +1,7 @@
 package br.com.jabolina.sharder.primitive.data;
 
 import com.google.common.base.MoreObjects;
+import io.atomix.core.map.impl.BlockingDistributedMap;
 import io.atomix.utils.serializer.Serializer;
 
 /**
@@ -38,6 +39,7 @@ public class MapPrimitive<K, V> extends AbstractPrimitive {
     return Serializer.builder()
         .addType(String.class)
         .addType(MapPrimitive.class)
+        .addType(BlockingDistributedMap.class)
         .addType(key.getClass())
         .addType(value.getClass())
         .build();

@@ -29,6 +29,7 @@ final class AtomixSessionConnection {
           || Error.FAILURE.equals(res.error().error())
           || Error.UNAVAILABLE.equals(res.error().error())
           || Error.NOT_READY.equals(res.error().error())
+          || Error.WRONG_USAGE.equals(res.error().error())
           || Error.UNKNOWN.equals(res.error().error());
   private final AtomixWrapper atomix;
   private final ConcurrentContext context;

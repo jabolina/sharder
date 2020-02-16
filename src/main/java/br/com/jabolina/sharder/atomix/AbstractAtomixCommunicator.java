@@ -28,14 +28,14 @@ public abstract class AbstractAtomixCommunicator implements Communicator {
   protected final Logger log;
   protected final AtomixWrapper atomix;
 
-  protected AbstractAtomixCommunicator(Node node) {
+  AbstractAtomixCommunicator(Node node) {
     this.atomix = node.atomix();
     this.log = ContextualLoggerFactory.getLogger(getClass(), LoggerContext.builder(getClass())
         .addValue(node.getName())
         .build());
   }
 
-  protected final <T extends AtomixMessage> T log(T t) {
+  final <T extends AtomixMessage> T log(T t) {
     log.debug("Communicator: {}", t);
     return t;
   }

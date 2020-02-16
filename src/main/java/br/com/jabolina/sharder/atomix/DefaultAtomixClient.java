@@ -61,7 +61,8 @@ public class DefaultAtomixClient implements AtomixClient {
         .withOperation(operation)
         .build())
         .thenApply(future::complete);
-    multicast.subscribe(operation.primitive().primitiveName(), consumer);
+    future.whenComplete((res, err) -> multicast.unsubscribe(operation.primitive().primitiveName(), consumer));
+    multicast.subscribe(AtomixClient.topicName(operation.primitive().primitiveName(), Action.WRITE), consumer);
     return future;
   }
 
@@ -71,7 +72,8 @@ public class DefaultAtomixClient implements AtomixClient {
         .withOperation(operation)
         .build())
         .thenApply(future::complete);
-    multicast.subscribe(operation.primitive().primitiveName(), consumer);
+    future.whenComplete((res, err) -> multicast.unsubscribe(operation.primitive().primitiveName(), consumer));
+    multicast.subscribe(AtomixClient.topicName(operation.primitive().primitiveName(), Action.READ), consumer);
     return future;
   }
 

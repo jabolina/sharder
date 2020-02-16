@@ -65,7 +65,7 @@ public class SharderPrimitiveClient implements SharderPrimitive {
           primitive(v, primitive, action, future);
           return v;
         })
-        .thenRun(() -> multicast.multicast(primitiveName, primitive.serialize()));
+        .thenRun(() -> multicast.multicast(AtomixClient.topicName(primitiveName, action), primitive.serialize()));
     return future;
   }
 
@@ -78,7 +78,7 @@ public class SharderPrimitiveClient implements SharderPrimitive {
           primitive(v, primitive, action, future);
           return v;
         })
-        .thenRun(() -> multicast.multicast(primitiveName, primitive.serialize()));
+        .thenRun(() -> multicast.multicast(AtomixClient.topicName(primitiveName, action), primitive.serialize()));
 
     return future;
   }
