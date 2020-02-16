@@ -32,18 +32,26 @@ public class PrimitiveClientTest extends BaseSharderTest {
   public void testMapUsingSharder() throws InterruptedException, ExecutionException, TimeoutException {
     Sharder sharder = startInstance(buildSharder("sharder-test-map")).get(30, TimeUnit.SECONDS);
     Assert.assertNotNull(sharder);
-    CountDownLatch latch = new CountDownLatch(1);
+    CountDownLatch latch = new CountDownLatch(2);
 
     TestPrimitive testPrimitive = new TestPrimitive();
     testPrimitive.value = TEST_VALUE;
     sharder.primitive("test-map", "test-key", testPrimitive, Action.WRITE)
         .whenComplete((res, err) -> {
+          LOGGER.info("response is [{}]", res);
+          Assert.assertEquals(SharderMessageResponse.Status.OK, res.status());
+          Assert.assertEquals(0, res.result().length);
+          latch.countDown();
+        });
+
+    sharder.primitive("test-map", "test-key", testPrimitive, Action.READ)
+        .whenComplete((res, err) -> {
           LOGGER.info("response is [{}]", new String(res.result()));
           Assert.assertEquals(SharderMessageResponse.Status.OK, res.status());
           latch.countDown();
         });
+
     latch.await(10, TimeUnit.SECONDS);
-    // Thread.sleep(10_000);
   }
 
   @Test
@@ -54,9 +62,10 @@ public class PrimitiveClientTest extends BaseSharderTest {
 
     TestPrimitive testPrimitive = new TestPrimitive();
     testPrimitive.value = TEST_VALUE;
-    sharder.primitive("test-collection", testPrimitive)
+    sharder.primitive("test-collection", testPrimitive, Action.WRITE)
         .whenComplete((res, err) -> {
           LOGGER.info("response is [{}]", res);
+          LOGGER.info("response is [{}]", new String(res.result()));
           latch.countDown();
         });
 

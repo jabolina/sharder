@@ -65,6 +65,18 @@ public enum Error {
     }
   },
 
+  WRONG_USAGE {
+    @Override
+    public SharderRuntimeException exception() {
+      return exception("Wrong usage of application");
+    }
+
+    @Override
+    public SharderRuntimeException exception(String message) {
+      return message != null ? new SharderRuntimeException.WrongUsageException(message) : exception();
+    }
+  },
+
   /**
    * Error for unknown exception
    */

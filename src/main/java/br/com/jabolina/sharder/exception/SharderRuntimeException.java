@@ -81,6 +81,13 @@ public class SharderRuntimeException extends SharderException {
     }
   }
 
+  public static class WrongUsageException extends SharderRuntimeException {
+
+    public WrongUsageException(String message) {
+      super(Error.WRONG_USAGE, message);
+    }
+  }
+
   /**
    * Thrown when an unknown error occurs
    */
